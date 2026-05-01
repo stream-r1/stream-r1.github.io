@@ -23,6 +23,8 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <div class="reading-progress" data-reading-progress aria-hidden="true"></div>
+
     <nav class="site-nav" aria-label="Primary navigation">
       <div class="container nav-inner">
         <a class="nav-brand" href="#top" aria-label="Stream-R1 homepage">
@@ -46,6 +48,8 @@
     <header class="hero" id="top">
       <div class="hero-canvas" aria-hidden="true"></div>
       <div class="hero-grain" aria-hidden="true"></div>
+      <div class="hero-watermark" aria-hidden="true">STREAM&bull;R1</div>
+
       <div class="container hero-inner">
         <div class="eyebrow">
           <span class="dot"></span>
@@ -94,29 +98,29 @@
             Models <span class="badge">soon</span>
           </a>
         </div>
+      </div>
 
-        <dl class="hero-metrics" aria-label="Headline numbers">
-          <div>
-            <dt>VBench Total</dt>
-            <dd>84.40</dd>
-            <span>&uarr; vs Wan2.1 teacher (84.26)</span>
-          </div>
-          <div>
-            <dt>Inference</dt>
-            <dd>23.1 FPS</dd>
-            <span>&asymp; 30&times; faster than teacher</span>
-          </div>
-          <div>
-            <dt>Long Video</dt>
-            <dd>180 s</dd>
-            <span>autoregressive streaming</span>
-          </div>
-          <div>
-            <dt>Overhead</dt>
-            <dd>0</dd>
-            <span>no architecture change</span>
-          </div>
-        </dl>
+      <!-- Hero marquee: 8 cases × 10s, scrolling continuously -->
+      <div class="hero-marquee" data-marquee>
+        <div class="marquee-track">
+          <button class="marquee-video" data-fullscreen aria-label="Case 01"><video src="case/10s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 02"><video src="case/10s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 03"><video src="case/10s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 04"><video src="case/10s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 05"><video src="case/10s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 06"><video src="case/10s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 07"><video src="case/10s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+          <button class="marquee-video" data-fullscreen aria-label="Case 08"><video src="case/10s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+          <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/10s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+        </div>
+        <p class="marquee-hint">Hover any clip to pause &middot; click to play fullscreen</p>
       </div>
     </header>
 
@@ -226,91 +230,108 @@
       </div>
     </section>
 
+    <!-- ====== Long Video — 4-row scrolling marquee ====== -->
     <section class="section section-feature" id="duration">
       <div class="container">
         <p class="section-eyebrow">Long Video Generation</p>
-        <h2 class="section-title">Three minutes of streaming, in one shot</h2>
+        <h2 class="section-title">Same eight prompts, four durations &mdash; no quality drift</h2>
         <p class="section-copy">
-          Following the Reward Forcing protocol, we generate the same prompt
-          autoregressively at <strong>five durations</strong> &mdash; 10s, 30s,
-          60s, 2min, and 3min. The featured player runs the full
-          <strong>180-second rollout</strong>; the timeline below marks every
-          shorter duration so you can see exactly how the model passes through
-          each milestone without quality drift.
+          Each row plays the <em>same eight prompts</em> at a different rollout
+          duration. Top to bottom: <strong>30 seconds</strong>, <strong>60
+          seconds</strong>, <strong>2 minutes</strong>, <strong>3 minutes</strong>.
+          The marquee scrolls continuously so every clip eventually passes
+          through. Hover a row to pause it and zoom the clip under your
+          cursor; click any clip to play it fullscreen.
         </p>
+      </div>
 
-        <div class="stage reveal" data-stage>
-          <div class="stage-feature">
-            <div class="stage-frame">
-              <video
-                class="stage-video"
-                data-stage-video
-                src="case/180s/0000_seed0.mp4"
-                autoplay loop muted playsinline preload="auto"
-              ></video>
-              <div class="stage-overlay">
-                <div class="stage-meta">
-                  <span class="stage-meta-eyebrow">Now playing</span>
-                  <span class="stage-case-label" data-stage-case-label>Case 01</span>
-                </div>
-                <span class="stage-pill">
-                  <span class="live-dot"></span>
-                  Streaming · 3 min · 23.1 FPS
-                </span>
-              </div>
-            </div>
-
-            <div class="stage-timeline" data-stage-timeline>
-              <div class="timeline-track" data-timeline-track>
-                <div class="timeline-progress" data-timeline-progress></div>
-                <div class="timeline-thumb" data-timeline-thumb></div>
-              </div>
-              <div class="timeline-markers" data-timeline-markers>
-                <div class="timeline-mark" style="left: 5.555%" data-mark="10s"><span>10s</span></div>
-                <div class="timeline-mark" style="left: 16.666%" data-mark="30s"><span>30s</span></div>
-                <div class="timeline-mark" style="left: 33.333%" data-mark="60s"><span>1 min</span></div>
-                <div class="timeline-mark" style="left: 66.666%" data-mark="120s"><span>2 min</span></div>
-                <div class="timeline-mark" style="left: 99.5%" data-mark="180s"><span>3 min</span></div>
-              </div>
-              <div class="timeline-times">
-                <span data-timeline-elapsed>0:00</span> /
-                <span>3:00</span>
-              </div>
-            </div>
+      <div class="duration-marquees">
+        <div class="duration-row" data-marquee data-direction="left">
+          <span class="duration-badge"><strong>30</strong>seconds</span>
+          <div class="marquee-track">
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 01"><video src="case/30s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 02"><video src="case/30s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 03"><video src="case/30s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 04"><video src="case/30s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 05"><video src="case/30s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 06"><video src="case/30s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 07"><video src="case/30s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="30s · Case 08"><video src="case/30s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/30s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
           </div>
+        </div>
 
-          <div class="stage-cases" role="tablist" aria-label="Choose case">
-            <button class="case-thumb is-active" role="tab" data-case="0000_seed0" data-label="01" aria-selected="true">
-              <video src="case/10s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0004_seed0" data-label="02" aria-selected="false">
-              <video src="case/10s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0043_seed0" data-label="03" aria-selected="false">
-              <video src="case/10s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0048_seed0" data-label="04" aria-selected="false">
-              <video src="case/10s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0069_seed0" data-label="05" aria-selected="false">
-              <video src="case/10s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0075_seed0" data-label="06" aria-selected="false">
-              <video src="case/10s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0095_seed0" data-label="07" aria-selected="false">
-              <video src="case/10s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
-            <button class="case-thumb" role="tab" data-case="0115_seed0" data-label="08" aria-selected="false">
-              <video src="case/10s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video>
-            </button>
+        <div class="duration-row" data-marquee data-direction="right">
+          <span class="duration-badge"><strong>60</strong>seconds</span>
+          <div class="marquee-track">
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 01"><video src="case/60s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 02"><video src="case/60s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 03"><video src="case/60s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 04"><video src="case/60s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 05"><video src="case/60s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 06"><video src="case/60s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 07"><video src="case/60s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="60s · Case 08"><video src="case/60s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/60s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
           </div>
+        </div>
 
-          <p class="stage-footnote">
-            Click any thumbnail to swap the featured prompt &middot; click on
-            the timeline or any milestone (10s / 30s / 1min / 2min / 3min) to
-            jump.
-          </p>
+        <div class="duration-row" data-marquee data-direction="left">
+          <span class="duration-badge"><strong>2</strong>minutes</span>
+          <div class="marquee-track">
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 01"><video src="case/120s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 02"><video src="case/120s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 03"><video src="case/120s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 04"><video src="case/120s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 05"><video src="case/120s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 06"><video src="case/120s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 07"><video src="case/120s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="2 min · Case 08"><video src="case/120s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/120s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+          </div>
+        </div>
+
+        <div class="duration-row" data-marquee data-direction="right">
+          <span class="duration-badge"><strong>3</strong>minutes</span>
+          <div class="marquee-track">
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 01"><video src="case/180s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 02"><video src="case/180s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 03"><video src="case/180s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 04"><video src="case/180s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 05"><video src="case/180s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 06"><video src="case/180s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 07"><video src="case/180s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-label="3 min · Case 08"><video src="case/180s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">01</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">02</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">03</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">04</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">05</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">06</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">07</span></button>
+            <button class="marquee-video" data-fullscreen aria-hidden="true" tabindex="-1"><video src="case/180s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video><span class="marquee-tag">08</span></button>
+          </div>
         </div>
       </div>
     </section>
@@ -622,48 +643,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-        </div>
-
-        <div class="result-block">
-          <h3 class="result-title">Human preference &mdash; 5 annotators, 50 long videos</h3>
-          <p class="result-caption">
-            Win rate (%) of Stream-R1 vs. Reward Forcing on 60-second videos,
-            averaged over five annotators per video. Win Rate = (Win + 0.5
-            &times; Tie) / Total. Stream-R1 wins on every dimension, with the
-            largest margin on motion quality.
-          </p>
-          <div class="winrate-grid" data-winrates>
-            <div class="winrate-row">
-              <span class="winrate-label">Temporal Consistency</span>
-              <div class="winrate-bar">
-                <div class="winrate-fill" style="--win: 51.0"><span>51.0%</span></div>
-              </div>
-            </div>
-            <div class="winrate-row">
-              <span class="winrate-label">Dynamic Reasonableness</span>
-              <div class="winrate-bar">
-                <div class="winrate-fill" style="--win: 63.0"><span>63.0%</span></div>
-              </div>
-            </div>
-            <div class="winrate-row">
-              <span class="winrate-label">Visual Quality &amp; Aesthetics</span>
-              <div class="winrate-bar">
-                <div class="winrate-fill" style="--win: 60.0"><span>60.0%</span></div>
-              </div>
-            </div>
-            <div class="winrate-row">
-              <span class="winrate-label">Text-Video Alignment</span>
-              <div class="winrate-bar">
-                <div class="winrate-fill" style="--win: 54.1"><span>54.1%</span></div>
-              </div>
-            </div>
-            <div class="winrate-row">
-              <span class="winrate-label">Overall Preference</span>
-              <div class="winrate-bar">
-                <div class="winrate-fill" style="--win: 57.0"><span>57.0%</span></div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
