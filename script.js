@@ -68,6 +68,15 @@ function initMarquees() {
         },
         { once: true },
       );
+      // Mark wrapper as having data so the shimmer skeleton hides
+      v.addEventListener(
+        "loadeddata",
+        () => {
+          const wrap = v.closest(".marquee-video");
+          if (wrap) wrap.classList.add("has-data");
+        },
+        { once: true },
+      );
     });
 
     if (!("IntersectionObserver" in window)) {
@@ -128,7 +137,11 @@ function initMarquees() {
 }
 
 /* ============================================================
-   Fullscreen-on-click for any [data-fullscreen] element
+   Fullscreen-on-click for any [data-fullscreen] element.
+   When [data-fullscreen-src] is present, the click swaps the
+   <video>'s src to the higher-quality source, plays + goes
+   fullscreen, then restores the lightweight preview source on
+   fullscreen exit.
    ============================================================ */
 
 function initMarqueeFullscreen() {
@@ -151,20 +164,96 @@ function initMarqueeFullscreen() {
     } catch (_) {}
   }
 
+  function urlOf(srcOrRel) {
+    try { return new URL(srcOrRel, location.href).href; } catch (_) { return srcOrRel; }
+  }
+
+  function swapSource(video, newSrc) {
+    if (!video) return;
+    if (urlOf(video.src) === urlOf(newSrc)) return;
+    if (!video.dataset.previewSrc) {
+      video.dataset.previewSrc = video.getAttribute("src") || video.src;
+    }
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    video.src = newSrc;
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+  }
+
+  function restorePreview(video) {
+    const preview = video.dataset.previewSrc;
+    if (!preview) return;
+    if (urlOf(video.src) === urlOf(preview)) return;
+    video.pause();
+    video.removeAttribute("src");
+    video.load();
+    video.src = preview;
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
+    video.play().catch(() => {});
+  }
+
+  function watchFullscreenExit(video) {
+    const onChange = () => {
+      const fs = document.fullscreenElement || document.webkitFullscreenElement;
+      if (!fs) {
+        // Exited fullscreen — go back to the lightweight preview
+        restorePreview(video);
+        document.removeEventListener("fullscreenchange", onChange);
+        document.removeEventListener("webkitfullscreenchange", onChange);
+        document.removeEventListener("webkitendfullscreen", onChange);
+      }
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    document.addEventListener("webkitendfullscreen", onChange);
+  }
+
   targets.forEach((el) => {
     el.addEventListener("click", (e) => {
       e.preventDefault();
       const video = el.querySelector("video");
       if (!video) return;
-      // Make sure the clip is at frame 0 and playing for fullscreen
-      try { video.currentTime = 0; } catch (_) {}
-      // Try requesting fullscreen on the video first (better mobile)
-      // then fall back to the wrapper
-      requestFs(video);
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        requestFs(el);
+
+      // Swap to the full-duration source if data-fullscreen-src is set
+      const fullSrc = el.dataset.fullscreenSrc;
+      if (fullSrc) {
+        swapSource(video, fullSrc);
       }
-      safePlay(video);
+
+      // Wait for the new source to be playable, then play + go fullscreen
+      const launch = () => {
+        try { video.currentTime = 0; } catch (_) {}
+        // Try requesting fullscreen on the video first (better on mobile),
+        // then fall back to the wrapper.
+        requestFs(video);
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+          requestFs(el);
+        }
+        safePlay(video);
+        watchFullscreenExit(video);
+      };
+
+      if (fullSrc && video.readyState < 1) {
+        const onLoaded = () => {
+          video.removeEventListener("loadedmetadata", onLoaded);
+          launch();
+        };
+        video.addEventListener("loadedmetadata", onLoaded);
+        // Safety fallback in case metadata event never fires
+        setTimeout(() => {
+          if (video.readyState < 1) return; // still nothing — bail
+          if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            launch();
+          }
+        }, 1500);
+      } else {
+        launch();
+      }
     });
 
     el.addEventListener("keydown", (e) => {
