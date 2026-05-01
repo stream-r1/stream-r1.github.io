@@ -11,189 +11,173 @@ function safePlay(video) {
   if (p && typeof p.catch === "function") p.catch(() => {});
 }
 
-function pad(n) {
-  return n < 10 ? "0" + n : "" + n;
-}
+/* ============================================================
+   Reading-progress bar at top of viewport
+   ============================================================ */
 
-function formatTime(seconds) {
-  if (!isFinite(seconds) || seconds < 0) seconds = 0;
-  const m = Math.floor(seconds / 60);
-  const s = Math.floor(seconds % 60);
-  return m + ":" + pad(s);
+function initReadingProgress() {
+  const bar = document.querySelector("[data-reading-progress]");
+  if (!bar) return;
+
+  let ticking = false;
+  function update() {
+    const doc = document.documentElement;
+    const max = doc.scrollHeight - doc.clientHeight;
+    const pct = max > 0 ? (window.scrollY / max) * 100 : 0;
+    bar.style.setProperty("--progress", pct + "%");
+    ticking = false;
+  }
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    },
+    { passive: true },
+  );
+  update();
 }
 
 /* ============================================================
-   Long Video Stage — featured player + 8 case thumbs + timeline
+   Marquees — viewport-aware autoplay
+   Each row runs on CSS animation (paused on hover).
+   We toggle <video>.play()/.pause() based on whether each clip
+   currently intersects the row's visible window, so only the
+   videos actually being shown are streaming bytes.
    ============================================================ */
 
-function initLongVideoStage() {
-  const stage = document.querySelector("[data-stage]");
-  if (!stage) return;
+function initMarquees() {
+  const rows = Array.from(document.querySelectorAll("[data-marquee]"));
+  if (!rows.length) return;
 
-  const featured = stage.querySelector("[data-stage-video]");
-  const caseLabel = stage.querySelector("[data-stage-case-label]");
-  const cases = Array.from(stage.querySelectorAll(".case-thumb"));
-  const track = stage.querySelector("[data-timeline-track]");
-  const progress = stage.querySelector("[data-timeline-progress]");
-  const thumb = stage.querySelector("[data-timeline-thumb]");
-  const elapsed = stage.querySelector("[data-timeline-elapsed]");
-  const markers = Array.from(stage.querySelectorAll(".timeline-mark"));
+  rows.forEach((row) => {
+    const videos = Array.from(row.querySelectorAll("video"));
+    if (!videos.length) return;
 
-  // Marker positions in seconds (used for jump targets and "current" highlight)
-  const markerSeconds = { "10s": 10, "30s": 30, "60s": 60, "120s": 120, "180s": 180 };
-
-  if (!featured) return;
-
-  // === Case switching ===
-  function setCase(caseId, fromUser) {
-    cases.forEach((c) => {
-      const active = c.dataset.case === caseId;
-      c.classList.toggle("is-active", active);
-      c.setAttribute("aria-selected", active ? "true" : "false");
-      const numLabel = caseLabel && active
-        ? "Case " + (c.dataset.label || "")
-        : null;
-      if (numLabel) caseLabel.textContent = numLabel;
+    // Stagger initial currentTime so identical-source pairs don't sync up
+    videos.forEach((v, i) => {
+      v.addEventListener(
+        "loadedmetadata",
+        () => {
+          if (isFinite(v.duration) && v.duration > 0.5) {
+            const offset = ((i * 0.7) % 1) * Math.min(v.duration, 8);
+            try { v.currentTime = offset; } catch (_) {}
+          }
+        },
+        { once: true },
+      );
     });
 
-    const newSrc = "case/180s/" + caseId + ".mp4";
-    if (featured.src.endsWith(newSrc)) return;
-
-    featured.classList.add("is-swapping");
-    featured.pause();
-    featured.removeAttribute("src");
-    featured.load();
-    featured.src = newSrc;
-    featured.preload = "auto";
-
-    const ready = () => {
-      featured.classList.remove("is-swapping");
-      if (!reduced()) safePlay(featured);
-      featured.removeEventListener("loadeddata", ready);
-    };
-    featured.addEventListener("loadeddata", ready);
-
-    // Reset timeline
-    if (progress) progress.style.width = "0%";
-    if (thumb) thumb.style.left = "0%";
-    if (elapsed) elapsed.textContent = "0:00";
-    markers.forEach((m) => m.classList.remove("is-current"));
-  }
-
-  cases.forEach((c) => {
-    c.addEventListener("click", () => setCase(c.dataset.case, true));
-    c.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        c.click();
-      }
-    });
-  });
-
-  // === Timeline progression ===
-  function update() {
-    const dur = featured.duration;
-    if (!isFinite(dur) || dur <= 0) return;
-    const pct = Math.max(0, Math.min(100, (featured.currentTime / dur) * 100));
-    if (progress) progress.style.width = pct + "%";
-    if (thumb) thumb.style.left = pct + "%";
-    if (elapsed) elapsed.textContent = formatTime(featured.currentTime);
-
-    // Highlight nearest milestone marker as "current"
-    const t = featured.currentTime;
-    let active = null;
-    markers.forEach((m) => {
-      const ms = markerSeconds[m.dataset.mark];
-      if (ms !== undefined && t + 0.5 >= ms - 4) active = m;
-    });
-    markers.forEach((m) => m.classList.toggle("is-current", m === active));
-  }
-
-  featured.addEventListener("timeupdate", update);
-  featured.addEventListener("loadedmetadata", update);
-
-  // === Click on track or marker to seek ===
-  function seekFromEvent(e) {
-    if (!track) return;
-    const rect = track.getBoundingClientRect();
-    const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
-    const ratio = Math.max(0, Math.min(1, x / rect.width));
-    if (isFinite(featured.duration) && featured.duration > 0) {
-      featured.currentTime = ratio * featured.duration;
+    if (!("IntersectionObserver" in window)) {
+      // Fallback: just play them all, browser will manage
+      if (!reduced()) videos.forEach(safePlay);
+      return;
     }
-  }
 
-  if (track) {
-    track.addEventListener("click", seekFromEvent);
-    // Drag to scrub
-    let dragging = false;
-    track.addEventListener("pointerdown", (e) => {
-      dragging = true;
-      track.setPointerCapture(e.pointerId);
-      seekFromEvent(e);
-    });
-    track.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
-      seekFromEvent(e);
-    });
-    track.addEventListener("pointerup", (e) => {
-      dragging = false;
-      try { track.releasePointerCapture(e.pointerId); } catch (_) {}
-    });
-    track.addEventListener("pointercancel", () => { dragging = false; });
-  }
-
-  markers.forEach((m) => {
-    m.style.pointerEvents = "auto";
-    m.style.cursor = "pointer";
-    m.addEventListener("click", () => {
-      const ms = markerSeconds[m.dataset.mark];
-      if (ms !== undefined && isFinite(featured.duration)) {
-        featured.currentTime = Math.min(ms, featured.duration);
-        if (!reduced()) safePlay(featured);
-      }
-    });
-  });
-
-  // Initial: ensure featured plays
-  if (!reduced()) safePlay(featured);
-
-  // Pause when far off-screen for bandwidth, resume in view
-  if ("IntersectionObserver" in window) {
-    const obs = new IntersectionObserver(
+    const ob = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (!reduced()) safePlay(featured);
+          const v = entry.target;
+          if (entry.isIntersecting && !reduced()) {
+            // Browser may need preload bump
+            if (v.preload === "metadata") v.preload = "auto";
+            safePlay(v);
           } else {
-            featured.pause();
+            v.pause();
           }
         });
       },
-      { threshold: 0.15 },
+      {
+        // Observe relative to the row's visible width — clips outside
+        // the masked area are paused to save bandwidth
+        root: row,
+        rootMargin: "0px -2% 0px -2%",
+        threshold: 0,
+      },
     );
-    obs.observe(stage.querySelector(".stage-feature"));
-  }
+    videos.forEach((v) => ob.observe(v));
+  });
 
-  // Auto-play case thumbnails when in view (low cost — 10s clips)
+  // Pause everything when tab is hidden
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      rows.forEach((row) =>
+        row.querySelectorAll("video").forEach((v) => v.pause()),
+      );
+    }
+  });
+
+  // When entire row is offscreen, drop everything in it
   if ("IntersectionObserver" in window) {
-    const obs = new IntersectionObserver(
+    const rowObs = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const v = entry.target.querySelector("video");
-          if (!v) return;
-          if (entry.isIntersecting && !reduced()) safePlay(v);
-          else v.pause();
+          if (!entry.isIntersecting) {
+            entry.target
+              .querySelectorAll("video")
+              .forEach((v) => v.pause());
+          }
         });
       },
-      { threshold: 0.25 },
+      { threshold: 0 },
     );
-    cases.forEach((c) => obs.observe(c));
+    rows.forEach((row) => rowObs.observe(row));
   }
 }
 
 /* ============================================================
-   Comparison rows — autoplay-on-viewport instead of hover
+   Fullscreen-on-click for any [data-fullscreen] element
+   ============================================================ */
+
+function initMarqueeFullscreen() {
+  const targets = Array.from(document.querySelectorAll("[data-fullscreen]"));
+  if (!targets.length) return;
+
+  function requestFs(el) {
+    const req =
+      el.requestFullscreen ||
+      el.webkitRequestFullscreen ||
+      el.webkitEnterFullscreen ||
+      el.msRequestFullscreen ||
+      el.mozRequestFullScreen;
+    if (!req) return;
+    try {
+      const result = req.call(el);
+      if (result && typeof result.catch === "function") {
+        result.catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  targets.forEach((el) => {
+    el.addEventListener("click", (e) => {
+      e.preventDefault();
+      const video = el.querySelector("video");
+      if (!video) return;
+      // Make sure the clip is at frame 0 and playing for fullscreen
+      try { video.currentTime = 0; } catch (_) {}
+      // Try requesting fullscreen on the video first (better mobile)
+      // then fall back to the wrapper
+      requestFs(video);
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        requestFs(el);
+      }
+      safePlay(video);
+    });
+
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        el.click();
+      }
+    });
+  });
+}
+
+/* ============================================================
+   Comparison rows — autoplay-on-viewport
    ============================================================ */
 
 function initCompareRows() {
@@ -221,7 +205,6 @@ function initCompareRows() {
           if (entry.isIntersecting) {
             entry.target.classList.add("is-active");
             if (!reduced()) {
-              // Sync starts to make Reward-Forcing vs Stream-R1 comparable
               videos.forEach((v) => { if (v.paused) v.currentTime = 0; });
               videos.forEach(safePlay);
             }
@@ -239,7 +222,7 @@ function initCompareRows() {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
       rows.forEach((row) =>
-        row.querySelectorAll("video").forEach((v) => v.pause())
+        row.querySelectorAll("video").forEach((v) => v.pause()),
       );
     }
   });
@@ -275,33 +258,30 @@ function initVisSlider() {
       stack.querySelectorAll(".vis-img").forEach((img) => {
         img.classList.toggle(
           "is-active",
-          parseInt(img.dataset.pos, 10) === idx
+          parseInt(img.dataset.pos, 10) === idx,
         );
       });
     });
     ticks.forEach((tick, i) => tick.classList.toggle("is-active", i === idx));
     const progressPct = max === 0 ? 0 : (idx / max) * 100;
     slider.style.setProperty("--vis-progress", progressPct + "%");
-    slider.setAttribute("aria-valuetext", "Frame " + (idx + 1) + " of " + (max + 1));
+    slider.setAttribute(
+      "aria-valuetext",
+      "Frame " + (idx + 1) + " of " + (max + 1),
+    );
 
-    // Animate readout value
-    if (readoutValue) {
-      readoutValue.textContent = weights[idx].toFixed(3);
-    }
+    if (readoutValue) readoutValue.textContent = weights[idx].toFixed(3);
     if (readoutBar) {
-      // Bar from 0 (at w=0.5) to 100% (at w=2.5) — stretch a bit beyond endpoints
-      const barPct =
-        ((weights[idx] - 0.5) / (2.5 - 0.5)) * 100;
+      const barPct = ((weights[idx] - 0.5) / (2.5 - 0.5)) * 100;
       readoutBar.style.setProperty(
         "--vis-bar",
-        Math.max(0, Math.min(100, barPct)) + "%"
+        Math.max(0, Math.min(100, barPct)) + "%",
       );
     }
   }
 
   slider.addEventListener("input", () => {
-    const idx = parseInt(slider.value, 10);
-    setActive(idx);
+    setActive(parseInt(slider.value, 10));
   });
 
   ticks.forEach((tick, i) => {
@@ -332,10 +312,7 @@ function initCitationCopy() {
 
   const copyText = async (text) => {
     if (navigator.clipboard && window.isSecureContext) {
-      try {
-        await navigator.clipboard.writeText(text);
-        return;
-      } catch (_) { /* fall through */ }
+      try { await navigator.clipboard.writeText(text); return; } catch (_) {}
     }
     const ta = document.createElement("textarea");
     ta.value = text;
@@ -364,7 +341,7 @@ function initCitationCopy() {
 }
 
 /* ============================================================
-   Scroll reveal — fade-in + lift sections as they enter view
+   Scroll reveal — fade + lift sections as they enter view
    ============================================================ */
 
 function initScrollReveal() {
@@ -391,95 +368,15 @@ function initScrollReveal() {
 }
 
 /* ============================================================
-   Win-rate bars — re-trigger fill animation when scrolled into view
-   ============================================================ */
-
-function initWinrateReveal() {
-  const grid = document.querySelector("[data-winrates]");
-  if (!grid) return;
-
-  const rows = Array.from(grid.querySelectorAll(".winrate-row"));
-
-  if (reduced() || !("IntersectionObserver" in window)) {
-    rows.forEach((r) => r.classList.add("is-revealed"));
-    return;
-  }
-
-  const obs = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          rows.forEach((r, i) => {
-            window.setTimeout(
-              () => r.classList.add("is-revealed"),
-              i * 90,
-            );
-          });
-          obs.disconnect();
-        }
-      });
-    },
-    { threshold: 0.4 },
-  );
-  obs.observe(grid);
-}
-
-/* ============================================================
-   Hero metric counter — count up from 0 once on first view
-   ============================================================ */
-
-function initMetricCounters() {
-  const dds = Array.from(document.querySelectorAll(".hero-metrics dd"));
-  if (!dds.length) return;
-  if (reduced() || !("IntersectionObserver" in window)) return;
-
-  const animate = (el) => {
-    const text = el.textContent.trim();
-    const numMatch = text.match(/^([\d.]+)/);
-    if (!numMatch) return;
-    const target = parseFloat(numMatch[1]);
-    if (!isFinite(target) || target === 0) return;
-    const decimals = (numMatch[1].split(".")[1] || "").length;
-    const suffix = text.slice(numMatch[1].length);
-
-    const dur = 1100;
-    const start = performance.now();
-    function tick(now) {
-      const t = Math.min(1, (now - start) / dur);
-      // ease-out-cubic
-      const eased = 1 - Math.pow(1 - t, 3);
-      const v = target * eased;
-      el.textContent = v.toFixed(decimals) + suffix;
-      if (t < 1) requestAnimationFrame(tick);
-      else el.textContent = numMatch[1] + suffix;
-    }
-    requestAnimationFrame(tick);
-  };
-
-  const obs = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          animate(entry.target);
-          obs.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.5 },
-  );
-  dds.forEach((dd) => obs.observe(dd));
-}
-
-/* ============================================================
    Boot
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
-  initLongVideoStage();
+  initReadingProgress();
+  initMarquees();
+  initMarqueeFullscreen();
   initCompareRows();
   initVisSlider();
   initCitationCopy();
   initScrollReveal();
-  initWinrateReveal();
-  initMetricCounters();
 });
