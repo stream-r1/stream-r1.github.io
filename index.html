@@ -4,16 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-      Lance: A Compact Unified Multimodal Model via Multi-Task Synergy
+      Stream-R1: Reliability-Complexity Aware Reward Distillation for Streaming Video Generation
     </title>
+    <meta
+      name="description"
+      content="Stream-R1 is a reliability-complexity aware reward distillation framework for streaming video generation."
+    />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080705'/%3E%3Cpath d='M32 4l11 13h-5v10h-12V17h-5L32 4z' fill='%23f4d27a'/%3E%3Crect x='29' y='17' width='6' height='34' rx='3' fill='%23d4af37'/%3E%3Cpath d='M32 51l6 9h-12l6-9z' fill='%239c6b1f'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%230a84ff'/%3E%3Cstop offset='1' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M20 22h18a8 8 0 010 16h-8l-4 6H22a8 8 0 010-16h6' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -21,1275 +25,718 @@
   <body>
     <nav class="site-nav" aria-label="Primary navigation">
       <div class="container nav-inner">
-        <a class="nav-brand" href="#overview" aria-label="Lance homepage">
-          Lance
+        <a class="nav-brand" href="#top" aria-label="Stream-R1 homepage">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span class="brand-text">Stream-R1</span>
         </a>
         <div class="nav-links">
-          <a href="#overview">Overview</a>
-          <a href="#videos">Videos</a>
-          <a href="#images">Images</a>
-          <a href="#framework">Framework</a>
-          <a href="#benchmarks">Benchmarks</a>
-          <a href="#citation">Citation</a>
+          <a href="#abstract">Abstract</a>
+          <a href="#motivation">Motivation</a>
+          <a href="#method">Method</a>
+          <a href="#duration">Long Video</a>
+          <a href="#compare">Comparison</a>
+          <a href="#visualization">Visualization</a>
+          <a href="#results">Results</a>
+          <a href="#citation">Cite</a>
         </div>
       </div>
     </nav>
 
-    <header class="hero" id="overview">
-      <div class="container hero-layout">
-        <div class="hero-copy">
-          <h1 class="title">
-            Lance: A Compact Unified Multimodal Model via Multi-Task Synergy
-          </h1>
+    <header class="hero" id="top">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <div class="eyebrow">
+          <span class="dot"></span>
+          <span>Streaming Video Generation</span>
+        </div>
+        <h1 class="title">
+          <span class="title-accent">Stream-R1:</span>
+          Reliability-Complexity Aware Reward Distillation
+          <span class="title-fade">for Streaming Video Generation</span>
+        </h1>
 
-          <div class="authors">
-            <div class="authors-line">
-              <strong>Fengyi Fu<sup class="author-mark">*</sup></strong
-              >,
-              <a href="https://corleone-huang.github.io/" class="author-link"
-                ><strong class="author-name">Mengqi Huang</strong></a
-              ><sup class="author-mark">*&#8224;</sup>,
-              <a href="https://github.com/fenfenfenfan" class="author-link"
-                ><strong class="author-name">Shaojin Wu</strong></a
-              ><sup class="author-mark">*</sup>,
-              <strong>Yunsheng Jiang<sup class="author-mark">*</sup></strong
-              >, <strong>Yufei Huo</strong>,
-              <a href="https://guojianzhu.com/" class="author-link"
-                ><strong class="author-name">Jianzhu Guo</strong></a
-              ><sup class="author-mark">&#8224;&#167;</sup>
-            </div>
-            <div class="authors-line authors-line-secondary">
-              <span
-                >Hao Li, Yinghang Song, Fei Ding, Qian He, Zheren Fu, Zhendong
-                Mao, Yongdong Zhang</span
-              >
-            </div>
-            <div class="author-notes">
-              <span><sup class="author-mark">*</sup> Equal contribution</span>
-              <span
-                ><sup class="author-mark">&#8224;</sup> Corresponding
-                authors</span
-              >
-              <span><sup class="author-mark">&#167;</sup> Project Lead</span>
-            </div>
+        <div class="authors">
+          <div class="authors-line">
+            <span class="author"><strong>Bin Wu</strong><sup>1</sup></span>
+            <span class="author"><strong>Ziyu Jiang</strong><sup>3</sup></span>
+            <span class="author"><strong>Shaojin Wu</strong><sup>3</sup></span>
+            <span class="author"
+              ><strong>Mengqi Huang</strong
+              ><sup>1<span class="author-mark">&#8224;</span></sup></span
+            >
+            <span class="author"><strong>Weinan Jia</strong><sup>1</sup></span>
+            <span class="author"><strong>Yuxin Wang</strong><sup>2</sup></span>
+            <span class="author"
+              ><strong>Zhendong Mao</strong><sup>1</sup></span
+            >
+            <span class="author"
+              ><strong>Yongdong Zhang</strong><sup>1</sup></span
+            >
           </div>
-
-          <div class="affiliation">Intelligent Creation Team, ByteDance</div>
-
-          <p class="hero-summary">
-            Lance is a lightweight native unified multimodal model for image and
-            video understanding, generation, and editing, trained from scratch
-            with a staged multi-task recipe.
-          </p>
-
-          <dl class="hero-metrics" aria-label="Key results">
-            <div>
-              <dt>Params.</dt>
-              <dd>3B</dd>
-            </div>
-            <div>
-              <dt>Budget</dt>
-              <dd>128 GPUs</dd>
-            </div>
-            <div>
-              <dt>GenEVAL</dt>
-              <dd>0.91</dd>
-            </div>
-            <div>
-              <dt>VBench</dt>
-              <dd>84.17</dd>
-            </div>
-          </dl>
-
-          <div class="links">
-            <a href="https://arxiv.org/abs/2604.24763" class="link-btn">
-              <span>Paper</span>
-            </a>
-            <span class="link-btn link-btn-disabled" aria-disabled="true">
-              <span>Code coming soon</span>
-            </span>
+          <div class="affiliations">
+            <span><sup>1</sup> University of Science and Technology of China</span>
+            <span><sup>2</sup> FrameX.AI</span>
+            <span><sup>3</sup> Independent Researcher</span>
+          </div>
+          <div class="author-notes">
+            <span><sup>&#8224;</sup> Corresponding author</span>
           </div>
         </div>
 
-        <div class="hero-showcase" aria-label="Representative Lance outputs">
-          <a
-            class="showcase-card showcase-card-large"
-            href="#videos"
-            aria-label="Jump to Text-to-Video examples"
-          >
-            <img
-              src="assets/posters/t2v_2.jpg"
-              alt="Robot violinist video generation preview"
-              width="640"
-              height="360"
-              decoding="async"
-            />
-            <video
-              class="showcase-video"
-              src="assets/t2v_2.mp4"
-              poster="assets/posters/t2v_2.jpg"
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              aria-hidden="true"
-            ></video>
-            <div class="showcase-caption">
-              <span>Text-to-Video</span>
-              <strong>Scene-aware motion</strong>
-            </div>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="stream-r1.pdf" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path
+                d="M14 3v5h5M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.7"
+              />
+            </svg>
+            Paper
+          </a>
+          <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="arxiv">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path
+                d="M3 5h18M3 12h18M3 19h18"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.7"
+              />
+            </svg>
+            arXiv <span class="badge">soon</span>
           </a>
           <a
-            class="showcase-card"
-            href="#video-editing"
-            aria-label="Jump to Video Editing examples"
+            class="btn btn-secondary"
+            href="https://github.com/wangbei1/Stream-R1"
+            target="_blank"
+            rel="noopener"
           >
-            <img
-              src="assets/posters/video_edit_4.jpg"
-              alt="Portrait background editing preview"
-              width="640"
-              height="360"
-              decoding="async"
-            />
-            <video
-              class="showcase-video"
-              src="assets/video_edit_4.mp4"
-              poster="assets/posters/video_edit_4.jpg"
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              aria-hidden="true"
-            ></video>
-            <div class="showcase-caption">
-              <span>Video Editing</span>
-              <strong>Layout-preserving edits</strong>
-            </div>
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <path
+                d="M12 2a10 10 0 00-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.55 9.55 0 015 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0012 2z"
+                fill="currentColor"
+              />
+            </svg>
+            Code
           </a>
-          <a
-            class="showcase-card"
-            href="#intelligent-video"
-            aria-label="Jump to Intelligent Video Generation examples"
-          >
-            <img
-              src="assets/posters/maze3_right.jpg"
-              alt="Maze planning video generation preview"
-              width="640"
-              height="360"
-              decoding="async"
-            />
-            <video
-              class="showcase-video"
-              src="assets/maze3_right.mp4"
-              poster="assets/posters/maze3_right.jpg"
-              muted
-              loop
-              playsinline
-              preload="metadata"
-              aria-hidden="true"
-            ></video>
-            <div class="showcase-caption">
-              <span>Video Reasoning</span>
-              <strong>Goal-directed control</strong>
-            </div>
+          <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="hf">
+            <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
+              <path
+                d="M8 13c1 1.5 2.4 2.5 4 2.5s3-1 4-2.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-width="1.7"
+              />
+              <circle cx="9" cy="10" r=".9" fill="currentColor" />
+              <circle cx="15" cy="10" r=".9" fill="currentColor" />
+            </svg>
+            Models <span class="badge">soon</span>
           </a>
         </div>
+
+        <dl class="hero-metrics" aria-label="Headline numbers">
+          <div>
+            <dt>VBench Total</dt>
+            <dd>84.40</dd>
+            <span>&uarr; vs Wan2.1 teacher (84.26)</span>
+          </div>
+          <div>
+            <dt>Inference</dt>
+            <dd>23.1 FPS</dd>
+            <span>&asymp; 30&times; faster than teacher</span>
+          </div>
+          <div>
+            <dt>Long Video</dt>
+            <dd>up to 180s</dd>
+            <span>autoregressive streaming</span>
+          </div>
+          <div>
+            <dt>Overhead</dt>
+            <dd>0</dd>
+            <span>no architecture change</span>
+          </div>
+        </dl>
       </div>
     </header>
 
-    <section class="section section-intro">
-      <div class="container">
-        <div class="brief-layout">
-          <div class="brief-content">
-            <p class="brief-lead">
-              Lance bridges image/video understanding, generation, and editing
-              in one compact native unified multimodal model.
+    <section class="section section-light" id="abstract">
+      <div class="container narrow">
+        <p class="section-eyebrow">Abstract</p>
+        <p class="lead">
+          Stream-R1 reweights distribution-matching distillation along two
+          complementary axes &mdash; <em>Inter-Reliability</em> across rollouts
+          and <em>Intra-Complexity</em> across spatiotemporal regions &mdash;
+          using a single shared video reward model.
+        </p>
+        <p class="abstract-body">
+          Existing DMD methods for streaming video diffusion treat every
+          rollout, frame, and pixel as equally reliable supervision. We argue
+          this caps the upper bound of distilled quality. Stream-R1 instead
+          rescales each rollout&rsquo;s loss by an exponential of a pretrained
+          reward score so that reliable rollouts dominate supervision, and
+          back-propagates the same reward model to obtain per-pixel saliency
+          that concentrates optimization on the regions and frames the student
+          finds hardest. An adaptive balancing mechanism keeps visual quality,
+          motion quality, and text alignment improving in lockstep. The
+          resulting student surpasses its multi-step Wan2.1 teacher on VBench
+          Total and Semantic at <strong>23.1 FPS</strong>, with no architectural
+          change and zero inference overhead.
+        </p>
+
+        <div class="pillars">
+          <article>
+            <span class="pillar-num">01</span>
+            <h3>Inter-Reliability Weighting</h3>
+            <p>
+              Each rollout&rsquo;s loss is rescaled by
+              <code>exp(&beta; &middot; r<sub>final</sub>)</code>, so reliable
+              teacher rollouts dominate the supervision and steer the student
+              toward the high-quality mode rather than the full mixture.
             </p>
-            <dl class="overview-points">
-              <div class="overview-point">
-                <dt>Architecture</dt>
-                <dd>
-                  Shared interleaved multimodal sequence, dual-stream MoE, and
-                  modality-aware rotary positional encoding (MaPE).
-                </dd>
-              </div>
-              <div class="overview-point">
-                <dt>Training</dt>
-                <dd>
-                  Staged multi-task learning with adaptive data scheduling
-                  across understanding, generation, and editing tasks.
-                </dd>
-              </div>
-              <div class="overview-point">
-                <dt>Outcome</dt>
-                <dd>
-                  Lance outperforms existing open-source unified models on image
-                  and video generation tasks within a
-                  <strong class="text-emphasis">128-GPU training budget</strong
-                  >.
-                </dd>
-              </div>
-            </dl>
-          </div>
+          </article>
+          <article>
+            <span class="pillar-num">02</span>
+            <h3>Intra-Complexity Weighting</h3>
+            <p>
+              Back-propagating the reward model yields a per-pixel saliency
+              volume <code>S &isin; R<sup>F&times;H&times;W</sup></code>;
+              factorized into spatial and temporal weights, it focuses gradient
+              pressure on the regions and frames the student finds hardest.
+            </p>
+          </article>
+          <article>
+            <span class="pillar-num">03</span>
+            <h3>Adaptive Reward Balancing</h3>
+            <p>
+              A sliding window tracks per-axis (Visual / Motion / Text-align)
+              improvement and softly down-weights axes that are already
+              improving, keeping all three quality dimensions advancing
+              together.
+            </p>
+          </article>
         </div>
       </div>
     </section>
 
-    <section class="section section-video section-centered" id="videos">
+    <section class="section" id="motivation">
       <div class="container">
-        <h2 class="section-title">Text-to-Video</h2>
+        <p class="section-eyebrow">Motivation</p>
+        <h2 class="section-title">Two complementary axes of variance</h2>
         <p class="section-copy">
-          Representative text-conditioned generations spanning character,
-          animal, portrait, and atmospheric motion.
-        </p>
-        <div class="video-showcase">
-          <div class="video-grid video-grid-portrait">
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_1.mp4"
-                poster="assets/posters/t2v_1.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Dreamlike animal motion</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_2.mp4"
-                poster="assets/posters/t2v_2.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Character performance</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_3.mp4"
-                poster="assets/posters/t2v_3.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Underwater ambience</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_4.mp4"
-                poster="assets/posters/t2v_4.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Low-light portrait</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_5.mp4"
-                poster="assets/posters/t2v_5.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Equestrian motion</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_6.mp4"
-                poster="assets/posters/t2v_6.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Soft portrait scene</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_7.mp4"
-                poster="assets/posters/t2v_7.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Piano performance</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_8.mp4"
-                poster="assets/posters/t2v_8.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Cloud horizon motion</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/t2v_1.mp4"
-                poster="assets/posters/t2v_1.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Additional sample</div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-video section-centered" id="video-editing">
-      <div class="container">
-        <h2 class="section-title">Video Editing</h2>
-        <p class="section-copy">
-          Prompt-driven edits that preserve scene layout while changing
-          subjects, materials, backgrounds, or appearance details.
-        </p>
-        <div class="video-showcase">
-          <div class="video-grid video-grid-edit video-grid-portrait">
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_1.mp4"
-                poster="assets/posters/video_edit_1.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Scene recoloring</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_2.mp4"
-                poster="assets/posters/video_edit_2.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Object appearance edit</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_3.mp4"
-                poster="assets/posters/video_edit_3.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Accessory replacement</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_4.mp4"
-                poster="assets/posters/video_edit_4.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Background alteration</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_2.mp4"
-                poster="assets/posters/video_edit_2.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Additional edit sample</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/video_edit_3.mp4"
-                poster="assets/posters/video_edit_3.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Additional portrait edit</div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section
-      class="section section-video section-centered"
-      id="intelligent-video"
-    >
-      <div class="container">
-        <h2 class="section-title">Intelligent Video Generation</h2>
-        <p class="section-copy">
-          Structured planning and physics-oriented examples that probe control
-          over multi-step spatial behavior.
-        </p>
-        <div class="video-showcase">
-          <div class="video-grid video-grid-intelligent video-grid-portrait">
-            <article class="video-item portrait">
-              <video
-                src="assets/maze1_right.mp4"
-                poster="assets/posters/maze1_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Maze path planning</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/maze2_right.mp4"
-                poster="assets/posters/maze2_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Route adjustment</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/maze3_right.mp4"
-                poster="assets/posters/maze3_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Goal-directed motion</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/maze4_right.mp4"
-                poster="assets/posters/maze4_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Long-horizon planning</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/maze1_right.mp4"
-                poster="assets/posters/maze1_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Additional maze sample</div>
-            </article>
-            <article class="video-item portrait">
-              <video
-                src="assets/maze2_right.mp4"
-                poster="assets/posters/maze2_right.jpg"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
-              <div class="video-prompt">Additional route sample</div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section-centered" id="images">
-      <div class="container">
-        <h2 class="section-title">Image Generation</h2>
-        <p class="section-copy">
-          Representative text-to-image outputs spanning photorealistic,
-          stylized, compositional, and typography-heavy prompts.
-        </p>
-        <div class="capability-tags" aria-label="Image generation capabilities">
-          <span>Photorealism</span>
-          <span>Text rendering</span>
-          <span>Style diversity</span>
-          <span>Composition</span>
-        </div>
-        <figure class="scroll-zoom-img-wrapper">
-          <img
-            src="assets/T2I.jpg"
-            alt="Text-to-Image"
-            class="scroll-zoom-img"
-            width="1735"
-            height="2150"
-            decoding="async"
-          />
-          <figcaption class="media-caption">
-            A single collage is used here to expose broad prompt coverage while
-            keeping the page lightweight.
-          </figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="section section-centered" id="framework">
-      <div class="container">
-        <h2 class="section-title">Framework</h2>
-        <p class="section-copy">
-          Shared tokenization, modality-aware positions, and a dual-expert
-          backbone support understanding and generation within one unified
-          training recipe.
+          Teacher outputs vary in reliability across rollouts and in learning
+          complexity across spatiotemporal regions. Treating them uniformly
+          forces the student to inherit the teacher&rsquo;s full mixture,
+          including its low-quality modes, and leaves high-complexity content
+          such as hands, fast motion, and later frames under-supervised.
         </p>
         <figure class="figure-panel">
-          <img
-            src="assets/framework.png"
-            alt="Lance Framework"
-            class="framework-img"
-            width="1988"
-            height="900"
-            loading="lazy"
-          />
-          <figcaption class="media-caption">
-            Lance aligns image, video, and text tokens in one sequence while
-            preserving modality structure through dedicated positional encoding
-            and expert pathways.
+          <img src="motivation.png" alt="Motivation of Stream-R1" loading="lazy" />
+          <figcaption>
+            <strong>Figure 1.</strong> Teacher outputs exhibit Inter-Reliability across rollouts and
+            Intra-Complexity across spatiotemporal regions. Existing DMD applies a uniform weight;
+            Stream-R1 upweights reliable rollouts and concentrates optimization on
+            high-complexity regions, all driven by a single reward model.
           </figcaption>
         </figure>
       </div>
     </section>
 
-    <section class="section section-centered" id="benchmarks">
+    <section class="section section-light" id="method">
       <div class="container">
-        <div class="benchmark-summary" aria-label="Benchmark highlights">
-          <article>
-            <span>GenEVAL</span>
-            <strong>0.91</strong>
-            <p>Best overall score among listed unified multimodal models.</p>
-          </article>
-          <article>
-            <span>VBench</span>
-            <strong>84.17</strong>
-            <p>Top total score in the unified model group.</p>
-          </article>
-          <article>
-            <span>Compact training</span>
-            <strong>3B / 128 GPUs</strong>
-            <p>Strong generation results within a compact model budget.</p>
-          </article>
-        </div>
-        <h2 class="section-title benchmark-title">
-          Image generation on GenEVAL
-        </h2>
+        <p class="section-eyebrow">Method</p>
+        <h2 class="section-title">A single reward model, two complementary weights</h2>
         <p class="section-copy">
-          Comparisons against generation-only models and unified multimodal
-          baselines.
+          Stream-R1 retains the tractability of the DMD objective while
+          replacing its uniform weighting with reliability-aware and
+          complexity-aware guidance. The same reward model produces both a
+          rollout-level scalar and a per-pixel saliency volume, with adaptive
+          fusion across visual, motion, and text-alignment axes.
         </p>
-        <p class="table-hint">Scroll horizontally to inspect all metrics.</p>
-        <div class="benchmark-container">
-          <table class="benchmark-table grouped-table">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th># Params.</th>
-                <th>Single Obj.</th>
-                <th>Two Obj.</th>
-                <th>Counting</th>
-                <th>Colors</th>
-                <th>Position</th>
-                <th>Color Attri.</th>
-                <th>Overall</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="table-group-row">
-                <td colspan="9"><span>Generation-only models</span></td>
-              </tr>
-              <tr>
-                <td>FLUX.1-dev</td>
-                <td>12B</td>
-                <td>0.98</td>
-                <td>0.93</td>
-                <td>0.75</td>
-                <td>0.93</td>
-                <td>0.68</td>
-                <td>0.65</td>
-                <td>0.82</td>
-              </tr>
-              <tr>
-                <td>GPT Image 1</td>
-                <td>-</td>
-                <td>0.99</td>
-                <td>0.92</td>
-                <td>0.85</td>
-                <td>0.92</td>
-                <td>0.75</td>
-                <td>0.61</td>
-                <td>0.84</td>
-              </tr>
-              <tr>
-                <td>Qwen-Image</td>
-                <td>20B</td>
-                <td>0.99</td>
-                <td>0.92</td>
-                <td>0.89</td>
-                <td>0.88</td>
-                <td>0.76</td>
-                <td>0.77</td>
-                <td>0.87</td>
-              </tr>
-              <tr class="table-group-row">
-                <td colspan="9"><span>Unified models</span></td>
-              </tr>
-              <tr>
-                <td>MetaQuery-XL&#8224;</td>
-                <td>7B</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>0.80</td>
-              </tr>
-              <tr>
-                <td>OmniGen2</td>
-                <td>4B</td>
-                <td>1.00</td>
-                <td>0.95</td>
-                <td>0.64</td>
-                <td>0.88</td>
-                <td>0.55</td>
-                <td>0.76</td>
-                <td>0.80</td>
-              </tr>
-              <tr>
-                <td>Show-o2</td>
-                <td>7B</td>
-                <td class="best-score">1.00</td>
-                <td>0.87</td>
-                <td>0.58</td>
-                <td>0.92</td>
-                <td>0.52</td>
-                <td>0.62</td>
-                <td>0.76</td>
-              </tr>
-              <tr>
-                <td>UniWorld-V1</td>
-                <td>13B</td>
-                <td>0.99</td>
-                <td>0.93</td>
-                <td>0.79</td>
-                <td>0.89</td>
-                <td>0.49</td>
-                <td>0.70</td>
-                <td>0.80</td>
-              </tr>
-              <tr>
-                <td>BAGEL&#8224;</td>
-                <td>7B</td>
-                <td>0.98</td>
-                <td>0.95</td>
-                <td>0.84</td>
-                <td>0.95</td>
-                <td>0.78</td>
-                <td>0.77</td>
-                <td>0.88</td>
-              </tr>
-              <tr>
-                <td>Mogao</td>
-                <td>7B</td>
-                <td class="best-score">1.00</td>
-                <td class="best-score">0.97</td>
-                <td>0.83</td>
-                <td>0.93</td>
-                <td>0.84</td>
-                <td>0.80</td>
-                <td>0.89</td>
-              </tr>
-              <tr>
-                <td>TUNA</td>
-                <td>7B</td>
-                <td class="best-score">1.00</td>
-                <td class="best-score">0.97</td>
-                <td>0.81</td>
-                <td>0.91</td>
-                <td>0.88</td>
-                <td class="best-score">0.83</td>
-                <td>0.90</td>
-              </tr>
-              <tr class="ours-row">
-                <td>Lance</td>
-                <td>3B</td>
-                <td>0.99</td>
-                <td>0.96</td>
-                <td class="best-score">0.83</td>
-                <td class="best-score">0.95</td>
-                <td class="best-score">0.89</td>
-                <td>0.82</td>
-                <td class="best-score">0.91</td>
-              </tr>
-            </tbody>
-          </table>
+        <figure class="figure-panel figure-wide">
+          <img src="method.png" alt="Stream-R1 method overview" loading="lazy" />
+          <figcaption>
+            <strong>Figure 2.</strong> Inter-Reliability score extraction yields
+            <em>W<sub>inter</sub></em>; adaptive saliency aggregation factorizes the back-propagated
+            reward into spatial and temporal weights forming
+            <em>W<sub>intra</sub></em>. The composed loss is
+            <code>L<sub>Stream-R1</sub> = W<sub>inter</sub> &middot; (W<sub>intra</sub> &odot; L<sub>DMD</sub>)</code>.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section-feature" id="duration">
+      <div class="container">
+        <p class="section-eyebrow">Long Video Generation</p>
+        <h2 class="section-title">From 10 seconds to 3 minutes &mdash; one model</h2>
+        <p class="section-copy">
+          Following the Reward Forcing protocol, we generate at five durations
+          using autoregressive block-wise generation with EMA-Sink attention.
+          Pick a duration to swap every clip in place; quality and motion stay
+          coherent as the rollout extends.
+        </p>
+
+        <div
+          class="duration-tabs"
+          role="tablist"
+          aria-label="Choose video duration"
+        >
+          <button class="duration-tab is-active" role="tab" data-duration="10s" aria-selected="true">10s</button>
+          <button class="duration-tab" role="tab" data-duration="30s" aria-selected="false">30s</button>
+          <button class="duration-tab" role="tab" data-duration="60s" aria-selected="false">60s</button>
+          <button class="duration-tab" role="tab" data-duration="120s" aria-selected="false">2 min</button>
+          <button class="duration-tab" role="tab" data-duration="180s" aria-selected="false">3 min</button>
+          <span class="duration-indicator" aria-hidden="true"></span>
+        </div>
+
+        <div class="video-grid duration-grid" data-duration-grid>
+          <article class="video-card" data-case="0000_seed0">
+            <video
+              src="case/10s/0000_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 01</span></div>
+          </article>
+          <article class="video-card" data-case="0004_seed0">
+            <video
+              src="case/10s/0004_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 02</span></div>
+          </article>
+          <article class="video-card" data-case="0043_seed0">
+            <video
+              src="case/10s/0043_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 03</span></div>
+          </article>
+          <article class="video-card" data-case="0048_seed0">
+            <video
+              src="case/10s/0048_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 04</span></div>
+          </article>
+          <article class="video-card" data-case="0069_seed0">
+            <video
+              src="case/10s/0069_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 05</span></div>
+          </article>
+          <article class="video-card" data-case="0075_seed0">
+            <video
+              src="case/10s/0075_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 06</span></div>
+          </article>
+          <article class="video-card" data-case="0095_seed0">
+            <video
+              src="case/10s/0095_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 07</span></div>
+          </article>
+          <article class="video-card" data-case="0115_seed0">
+            <video
+              src="case/10s/0115_seed0.mp4"
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            ></video>
+            <div class="video-meta"><span>Case 08</span></div>
+          </article>
+        </div>
+
+        <p class="footnote">
+          Hover any clip to play. The same prompt is used across all durations
+          &mdash; click a different duration tab to compare quality drift over
+          time.
+        </p>
+      </div>
+    </section>
+
+    <section class="section" id="compare">
+      <div class="container">
+        <p class="section-eyebrow">Method Comparison</p>
+        <h2 class="section-title">Reward Forcing vs. Stream-R1</h2>
+        <p class="section-copy">
+          Same prompt, same seed. Reward Forcing applies a single global scalar
+          reward; Stream-R1 additionally redistributes the optimization signal
+          across reliable rollouts and complex regions. Hover a row to play
+          both clips in sync.
+        </p>
+
+        <div class="compare-grid">
+          <div class="compare-header">
+            <span>Reward Forcing</span>
+            <span>Stream-R1 <em>(ours)</em></span>
+          </div>
+          <div class="compare-row" data-compare="0033_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0033_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0033_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
+          <div class="compare-row" data-compare="0038_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0038_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0038_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
+          <div class="compare-row" data-compare="0039_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0039_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0039_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
+          <div class="compare-row" data-compare="0067_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0067_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0067_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
+          <div class="compare-row" data-compare="0123_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0123_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0123_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
+          <div class="compare-row" data-compare="0126_seed0">
+            <div class="compare-cell">
+              <video
+                src="experiment/reward%20forcing/0126_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-baseline">Baseline</span>
+            </div>
+            <div class="compare-cell">
+              <video
+                src="experiment/stream-r1/0126_seed0.mp4"
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              ></video>
+              <span class="compare-tag tag-ours">Ours</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section section-centered">
+    <section class="section section-light" id="visualization">
       <div class="container">
-        <h2 class="section-title benchmark-title">
-          Image generation on DPG-Bench
-        </h2>
-        <p class="table-hint">Scroll horizontally to inspect all metrics.</p>
-        <div class="benchmark-container">
-          <table class="benchmark-table grouped-table">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th># Params.</th>
-                <th>Global</th>
-                <th>Entity</th>
-                <th>Attribute</th>
-                <th>Relation</th>
-                <th>Other</th>
-                <th>Overall</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="table-group-row">
-                <td colspan="8"><span>Generation-only models</span></td>
-              </tr>
-              <tr>
-                <td>PixArt-a</td>
-                <td>0.6B</td>
-                <td>74.97</td>
-                <td>79.32</td>
-                <td>78.60</td>
-                <td>82.57</td>
-                <td>76.96</td>
-                <td>71.11</td>
-              </tr>
-              <tr>
-                <td>SDXL</td>
-                <td>3.5B</td>
-                <td>83.27</td>
-                <td>82.43</td>
-                <td>80.91</td>
-                <td>86.76</td>
-                <td>80.41</td>
-                <td>74.65</td>
-              </tr>
-              <tr>
-                <td>Hunyuan-DiT</td>
-                <td>1.5B</td>
-                <td>84.59</td>
-                <td>80.59</td>
-                <td>88.01</td>
-                <td>74.36</td>
-                <td>86.41</td>
-                <td>78.87</td>
-              </tr>
-              <tr>
-                <td>Playground v2.5</td>
-                <td>-</td>
-                <td>83.06</td>
-                <td>82.59</td>
-                <td>81.20</td>
-                <td>84.08</td>
-                <td>83.50</td>
-                <td>75.47</td>
-              </tr>
-              <tr>
-                <td>DALL-E 3</td>
-                <td>-</td>
-                <td>90.97</td>
-                <td>89.61</td>
-                <td>88.39</td>
-                <td>90.58</td>
-                <td>89.83</td>
-                <td>83.50</td>
-              </tr>
-              <tr>
-                <td>SD3-Medium</td>
-                <td>2B</td>
-                <td>87.90</td>
-                <td>91.01</td>
-                <td>88.83</td>
-                <td>80.70</td>
-                <td>88.68</td>
-                <td>84.08</td>
-              </tr>
-              <tr>
-                <td>Emu3-Gen</td>
-                <td>8B</td>
-                <td>85.21</td>
-                <td>86.68</td>
-                <td>86.84</td>
-                <td>90.22</td>
-                <td>83.15</td>
-                <td>80.60</td>
-              </tr>
-              <tr>
-                <td>FLUX.1-dev</td>
-                <td>12B</td>
-                <td>74.35</td>
-                <td>90.00</td>
-                <td>88.96</td>
-                <td>90.87</td>
-                <td>88.33</td>
-                <td>83.84</td>
-              </tr>
-              <tr>
-                <td>Qwen-Image</td>
-                <td>20B</td>
-                <td>91.32</td>
-                <td>91.56</td>
-                <td>92.02</td>
-                <td>94.31</td>
-                <td>92.73</td>
-                <td>88.32</td>
-              </tr>
-              <tr class="table-group-row">
-                <td colspan="8"><span>Unified models</span></td>
-              </tr>
-              <tr>
-                <td>Emu3-DPO</td>
-                <td>8B</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>81.60</td>
-              </tr>
-              <tr>
-                <td>Janus</td>
-                <td>-</td>
-                <td>82.33</td>
-                <td>87.38</td>
-                <td>87.70</td>
-                <td>85.46</td>
-                <td>86.41</td>
-                <td>79.68</td>
-              </tr>
-              <tr>
-                <td>Janus-Pro-7B</td>
-                <td>7B</td>
-                <td>86.90</td>
-                <td>88.90</td>
-                <td>89.40</td>
-                <td>89.32</td>
-                <td>89.48</td>
-                <td>84.19</td>
-              </tr>
-              <tr>
-                <td>Ovis-U1</td>
-                <td>1.2B</td>
-                <td>82.37</td>
-                <td>90.08</td>
-                <td>88.68</td>
-                <td>93.35</td>
-                <td>85.20</td>
-                <td>83.72</td>
-              </tr>
-              <tr>
-                <td>OmniGen2</td>
-                <td>4B</td>
-                <td>88.81</td>
-                <td>88.83</td>
-                <td>90.18</td>
-                <td>89.37</td>
-                <td>90.27</td>
-                <td>83.57</td>
-              </tr>
-              <tr>
-                <td>Show-o2</td>
-                <td>7B</td>
-                <td>89.00</td>
-                <td>91.78</td>
-                <td>89.96</td>
-                <td>91.81</td>
-                <td>91.64</td>
-                <td>86.14</td>
-              </tr>
-              <tr>
-                <td>UniWorld-V1</td>
-                <td>13B</td>
-                <td>83.64</td>
-                <td>88.39</td>
-                <td>88.44</td>
-                <td>89.27</td>
-                <td>87.22</td>
-                <td>81.38</td>
-              </tr>
-              <tr>
-                <td>BAGEL&#8224;</td>
-                <td>7B</td>
-                <td>88.94</td>
-                <td>90.37</td>
-                <td>91.29</td>
-                <td>90.82</td>
-                <td>88.67</td>
-                <td>85.07</td>
-              </tr>
-              <tr>
-                <td>Mogao</td>
-                <td>7B</td>
-                <td>82.37</td>
-                <td>90.03</td>
-                <td>88.26</td>
-                <td>93.18</td>
-                <td>85.40</td>
-                <td>84.33</td>
-              </tr>
-              <tr>
-                <td>InternVL-U</td>
-                <td>1.7B</td>
-                <td>90.39</td>
-                <td>90.78</td>
-                <td>90.68</td>
-                <td>90.29</td>
-                <td>88.77</td>
-                <td>85.18</td>
-              </tr>
-              <tr>
-                <td>TUNA</td>
-                <td>7B</td>
-                <td>90.42</td>
-                <td>91.68</td>
-                <td>90.94</td>
-                <td>91.87</td>
-                <td>90.73</td>
-                <td>86.76</td>
-              </tr>
-              <tr class="ours-row">
-                <td>Lance</td>
-                <td>3B</td>
-                <td>83.89</td>
-                <td>90.68</td>
-                <td>88.68</td>
-                <td>92.77</td>
-                <td>80.00</td>
-                <td>84.43</td>
-              </tr>
-            </tbody>
-          </table>
+        <p class="section-eyebrow">Reward Saliency Visualization</p>
+        <h2 class="section-title">Where the gradient pressure goes</h2>
+        <p class="section-copy">
+          Drag the slider to walk through four cases. The left panel is the
+          generated frame; the right panel overlays the per-pixel saliency
+          recovered from back-propagating the reward model. Bright regions
+          drive larger gradient updates &mdash; typically hands, edges, and
+          fast-moving content.
+        </p>
+
+        <div class="vis" data-vis>
+          <div class="vis-pair">
+            <figure class="vis-cell">
+              <span class="vis-tag">Generated frame</span>
+              <div class="vis-img-stack">
+                <img class="vis-img is-active" data-pos="0" src="0.png" alt="Case 1 frame" />
+                <img class="vis-img" data-pos="1" src="1.png" alt="Case 2 frame" />
+                <img class="vis-img" data-pos="2" src="2.png" alt="Case 3 frame" />
+                <img class="vis-img" data-pos="3" src="3.png" alt="Case 4 frame" />
+              </div>
+            </figure>
+            <figure class="vis-cell">
+              <span class="vis-tag vis-tag-accent">Reward saliency</span>
+              <div class="vis-img-stack">
+                <img class="vis-img is-active" data-pos="0" src="0-visiual.png" alt="Case 1 saliency" />
+                <img class="vis-img" data-pos="1" src="1-visiual.png" alt="Case 2 saliency" />
+                <img class="vis-img" data-pos="2" src="2-visiual.png" alt="Case 3 saliency" />
+                <img class="vis-img" data-pos="3" src="3-visiual.png" alt="Case 4 saliency" />
+              </div>
+            </figure>
+          </div>
+
+          <div class="vis-control">
+            <input
+              class="vis-slider"
+              type="range"
+              min="0"
+              max="3"
+              step="1"
+              value="0"
+              aria-label="Visualization case"
+            />
+            <div class="vis-ticks" aria-hidden="true">
+              <span class="is-active">Case 1</span>
+              <span>Case 2</span>
+              <span>Case 3</span>
+              <span>Case 4</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section section-centered">
+    <section class="section" id="results">
       <div class="container">
-        <h2 class="section-title benchmark-title">
-          Image editing on GEdit-Bench
-        </h2>
-        <p class="table-hint">Scroll horizontally to inspect all metrics.</p>
-        <div class="benchmark-container">
-          <table class="benchmark-table grouped-table compact-table">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th># Params.</th>
-                <th>BC</th>
-                <th>CA</th>
-                <th>MM</th>
-                <th>MC</th>
-                <th>PB</th>
-                <th>ST</th>
-                <th>SA</th>
-                <th>SR</th>
-                <th>SRp</th>
-                <th>TM</th>
-                <th>TT</th>
-                <th>Avg/G-O</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="table-group-row">
-                <td colspan="14"><span>Generation-only models</span></td>
-              </tr>
-              <tr>
-                <td>Gemini 2.0</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>6.32</td>
-              </tr>
-              <tr>
-                <td>GPT Image 1</td>
-                <td>-</td>
-                <td>6.96</td>
-                <td>6.85</td>
-                <td>7.10</td>
-                <td>5.41</td>
-                <td>6.74</td>
-                <td>7.44</td>
-                <td>7.51</td>
-                <td>8.73</td>
-                <td>8.55</td>
-                <td>8.45</td>
-                <td>8.69</td>
-                <td>7.49</td>
-              </tr>
-              <tr>
-                <td>Qwen-Image-Edit</td>
-                <td>20B</td>
-                <td>8.23</td>
-                <td>8.30</td>
-                <td>7.33</td>
-                <td>8.05</td>
-                <td>7.49</td>
-                <td>6.74</td>
-                <td>8.57</td>
-                <td>8.09</td>
-                <td>8.29</td>
-                <td>8.48</td>
-                <td>8.50</td>
-                <td>8.01</td>
-              </tr>
-              <tr class="table-group-row">
-                <td colspan="14"><span>Unified models</span></td>
-              </tr>
-              <tr>
-                <td>Lumina-DiMOO</td>
-                <td>8B</td>
-                <td>3.43</td>
-                <td>4.27</td>
-                <td>3.08</td>
-                <td>2.77</td>
-                <td>4.74</td>
-                <td>5.19</td>
-                <td>4.44</td>
-                <td>3.80</td>
-                <td>4.38</td>
-                <td>2.68</td>
-                <td>4.20</td>
-                <td>3.91</td>
-              </tr>
-              <tr>
-                <td>Ovis-U1</td>
-                <td>1.2B</td>
-                <td>7.49</td>
-                <td>6.88</td>
-                <td>6.21</td>
-                <td>4.79</td>
-                <td>5.98</td>
-                <td>6.46</td>
-                <td>7.49</td>
-                <td>7.25</td>
-                <td>7.27</td>
-                <td>4.48</td>
-                <td>6.31</td>
-                <td>6.42</td>
-              </tr>
-              <tr>
-                <td>BAGEL</td>
-                <td>7B</td>
-                <td>7.32</td>
-                <td>6.91</td>
-                <td>6.38</td>
-                <td>4.75</td>
-                <td>4.57</td>
-                <td>6.15</td>
-                <td>7.90</td>
-                <td>7.16</td>
-                <td>7.02</td>
-                <td>7.32</td>
-                <td>6.22</td>
-                <td>6.52</td>
-              </tr>
-              <tr>
-                <td>InternVL-U</td>
-                <td>1.7B</td>
-                <td>7.08</td>
-                <td>7.05</td>
-                <td>6.38</td>
-                <td>7.02</td>
-                <td>6.03</td>
-                <td>6.27</td>
-                <td>7.13</td>
-                <td>6.55</td>
-                <td>6.33</td>
-                <td>6.59</td>
-                <td>6.85</td>
-                <td>6.66</td>
-              </tr>
-              <tr>
-                <td>InternVL-U (w/ CoT)</td>
-                <td>1.7B</td>
-                <td>7.05</td>
-                <td>7.87</td>
-                <td>6.50</td>
-                <td>6.99</td>
-                <td>5.77</td>
-                <td>6.10</td>
-                <td>7.33</td>
-                <td>7.16</td>
-                <td>7.12</td>
-                <td>7.36</td>
-                <td>6.46</td>
-                <td>6.88</td>
-              </tr>
-              <tr class="ours-row">
-                <td>Lance</td>
-                <td>3B</td>
-                <td>7.82</td>
-                <td>7.76</td>
-                <td>7.16</td>
-                <td>7.50</td>
-                <td>7.20</td>
-                <td>7.15</td>
-                <td>7.68</td>
-                <td>7.79</td>
-                <td>7.44</td>
-                <td>3.70</td>
-                <td>7.83</td>
-                <td>7.18</td>
-              </tr>
-            </tbody>
-          </table>
+        <p class="section-eyebrow">Quantitative Results</p>
+        <h2 class="section-title">Beating the multi-step teacher at 30&times; speed</h2>
+        <p class="section-copy">
+          Despite being distilled into a 4-step model, Stream-R1 surpasses its
+          own diffusion teacher Wan2.1 on VBench Total and Semantic, while
+          improving on Reward Forcing across every axis at the same throughput.
+        </p>
+
+        <div class="result-block">
+          <h3 class="result-title">VBench (5s, 832&times;480)</h3>
+          <div class="table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Params</th>
+                  <th>FPS&uarr;</th>
+                  <th>Total&uarr;</th>
+                  <th>Quality&uarr;</th>
+                  <th>Semantic&uarr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="group-row">
+                  <td colspan="6">Diffusion models</td>
+                </tr>
+                <tr>
+                  <td>LTX-Video</td><td>1.9B</td><td>8.98</td><td>80.00</td><td>82.30</td><td>70.79</td>
+                </tr>
+                <tr>
+                  <td>Wan2.1 (teacher)</td><td>1.3B</td><td>0.78</td><td>84.26</td><td class="best">85.30</td><td>80.09</td>
+                </tr>
+                <tr class="group-row">
+                  <td colspan="6">Autoregressive / streaming models</td>
+                </tr>
+                <tr>
+                  <td>SkyReels-V2</td><td>1.3B</td><td>0.49</td><td>82.67</td><td>84.70</td><td>74.53</td>
+                </tr>
+                <tr>
+                  <td>MAGI-1</td><td>4.5B</td><td>0.19</td><td>79.18</td><td>82.04</td><td>67.74</td>
+                </tr>
+                <tr>
+                  <td>NOVA</td><td>0.6B</td><td>0.88</td><td>80.12</td><td>80.39</td><td>79.05</td>
+                </tr>
+                <tr>
+                  <td>Pyramid Flow</td><td>2B</td><td>6.7</td><td>81.72</td><td>84.74</td><td>69.62</td>
+                </tr>
+                <tr>
+                  <td>CausVid</td><td>1.3B</td><td>17.0</td><td>82.88</td><td>83.93</td><td>78.69</td>
+                </tr>
+                <tr>
+                  <td>Self Forcing</td><td>1.3B</td><td>17.0</td><td>83.80</td><td>84.59</td><td>80.64</td>
+                </tr>
+                <tr>
+                  <td>LongLive</td><td>1.3B</td><td>20.7</td><td>83.22</td><td>83.68</td><td>81.37</td>
+                </tr>
+                <tr>
+                  <td>Rolling Forcing</td><td>1.3B</td><td>17.5</td><td>81.22</td><td>84.08</td><td>69.78</td>
+                </tr>
+                <tr class="group-row">
+                  <td colspan="6">Reward-guided distillation</td>
+                </tr>
+                <tr>
+                  <td>Reward Forcing</td><td>1.3B</td><td>23.1</td><td>84.13</td><td>84.84</td><td>81.32</td>
+                </tr>
+                <tr class="ours-row">
+                  <td>Stream-R1 <em>(ours)</em></td>
+                  <td>1.3B</td>
+                  <td>23.1</td>
+                  <td class="best">84.40</td>
+                  <td>85.14</td>
+                  <td class="best">81.44</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="result-block">
+          <h3 class="result-title">VLM evaluation on 60-second videos (Qwen3-VL)</h3>
+          <div class="table-wrap">
+            <table class="result-table compact">
+              <thead>
+                <tr>
+                  <th>Model</th>
+                  <th>Visual&uarr;</th>
+                  <th>Dynamic&uarr;</th>
+                  <th>Text&uarr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>SkyReels-V2</td><td>3.30</td><td>3.05</td><td>2.70</td></tr>
+                <tr><td>CausVid</td><td>4.66</td><td>3.16</td><td>3.32</td></tr>
+                <tr><td>Self Forcing</td><td>3.89</td><td>3.44</td><td>3.11</td></tr>
+                <tr><td>LongLive</td><td>4.79</td><td>3.81</td><td>3.98</td></tr>
+                <tr><td>Reward Forcing</td><td>4.82</td><td class="best">4.18</td><td>4.04</td></tr>
+                <tr class="ours-row">
+                  <td>Stream-R1 <em>(ours)</em></td>
+                  <td class="best">4.92</td>
+                  <td>4.04</td>
+                  <td class="best">4.11</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="result-figures">
+          <figure class="figure-panel">
+            <img src="experiment/5s-vbench.png" alt="5-second VBench breakdown" loading="lazy" />
+            <figcaption>
+              <strong>5-second VBench breakdown.</strong> Stream-R1 improves
+              every dimension over Reward Forcing at identical throughput.
+            </figcaption>
+          </figure>
+          <figure class="figure-panel">
+            <img
+              src="experiment/compare-reward-forcing.png"
+              alt="Per-metric quality versus video length"
+              loading="lazy"
+            />
+            <figcaption>
+              <strong>Quality vs. video length.</strong> Stream-R1 (blue) widens
+              its lead over Reward Forcing (orange) as duration grows,
+              especially at 120s and 180s.
+            </figcaption>
+          </figure>
+          <figure class="figure-panel">
+            <img src="experiment/qwen236B.png" alt="Qwen3-VL 236B evaluation" loading="lazy" />
+            <figcaption>
+              <strong>Qwen3-VL 236B evaluation.</strong> Larger judge confirms
+              the same trend on visual, dynamic, and text-alignment axes.
+            </figcaption>
+          </figure>
         </div>
       </div>
     </section>
 
-    <section class="section section-centered">
-      <div class="container">
-        <h2 class="section-title benchmark-title">
-          Video generation on VBench
-        </h2>
-        <p class="table-hint">Scroll horizontally to inspect all metrics.</p>
-        <div class="benchmark-container score-container">
-          <table class="benchmark-table grouped-table score-table">
-            <thead>
-              <tr>
-                <th>Model</th>
-                <th># Params.</th>
-                <th>Total Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="table-group-row">
-                <td colspan="3"><span>Generation-only models</span></td>
-              </tr>
-              <tr>
-                <td>ModelScope</td>
-                <td>1.7B</td>
-                <td>75.75</td>
-              </tr>
-              <tr>
-                <td>LaVie</td>
-                <td>3B</td>
-                <td>77.08</td>
-              </tr>
-              <tr>
-                <td>Show-1</td>
-                <td>6B</td>
-                <td>78.93</td>
-              </tr>
-              <tr>
-                <td>AnimateDiff-V2</td>
-                <td>-</td>
-                <td>80.27</td>
-              </tr>
-              <tr>
-                <td>VideoCrafter-2.0</td>
-                <td>-</td>
-                <td>80.44</td>
-              </tr>
-              <tr>
-                <td>CogVideoX</td>
-                <td>5B</td>
-                <td>81.61</td>
-              </tr>
-              <tr>
-                <td>Kling</td>
-                <td>-</td>
-                <td>81.85</td>
-              </tr>
-              <tr>
-                <td>Open-Sora-2.0</td>
-                <td>-</td>
-                <td>81.71</td>
-              </tr>
-              <tr>
-                <td>Gen-3</td>
-                <td>-</td>
-                <td>82.32</td>
-              </tr>
-              <tr>
-                <td>Step-Video-T2V</td>
-                <td>30B</td>
-                <td>81.83</td>
-              </tr>
-              <tr>
-                <td>Hunyuan Video</td>
-                <td>-</td>
-                <td>83.43</td>
-              </tr>
-              <tr>
-                <td>Wan2.1-T2V</td>
-                <td>14B</td>
-                <td>83.69</td>
-              </tr>
-              <tr class="table-group-row">
-                <td colspan="3"><span>Unified models</span></td>
-              </tr>
-              <tr>
-                <td>HaproOmni</td>
-                <td>7B</td>
-                <td>78.10</td>
-              </tr>
-              <tr>
-                <td>Emu3</td>
-                <td>8B</td>
-                <td>80.96</td>
-              </tr>
-              <tr>
-                <td>VILA-U</td>
-                <td>7B</td>
-                <td>74.01</td>
-              </tr>
-              <tr>
-                <td>Show-o2</td>
-                <td>2B</td>
-                <td>81.34</td>
-              </tr>
-              <tr>
-                <td>TUNA</td>
-                <td>1.5B</td>
-                <td>84.06</td>
-              </tr>
-              <tr class="ours-row">
-                <td>Lance</td>
-                <td>3B</td>
-                <td class="best-score">84.17</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="citation">
-      <div class="container">
-        <h2 class="section-title">Citation</h2>
+    <section class="section section-light" id="citation">
+      <div class="container narrow">
+        <p class="section-eyebrow">BibTeX</p>
+        <h2 class="section-title">Cite Stream-R1</h2>
         <div class="citation-card">
           <button
             class="copy-citation-btn"
@@ -1312,14 +759,13 @@
                 rx="2"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
+                stroke-width="1.7"
               ></rect>
               <path
-                d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"
+                d="M5 15H4a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1"
                 fill="none"
                 stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="2"
+                stroke-width="1.7"
               ></path>
             </svg>
             <svg
@@ -1338,24 +784,31 @@
                 stroke-width="2.4"
               ></path>
             </svg>
+            <span class="copy-text">Copy</span>
           </button>
-          <pre class="citation-block"><code>@article{lance,
-  title={Lance: A Compact Unified Multimodal Model via Multi-Task Synergy},
-  author={Fengyi Fu and Mengqi Huang and Shaojin Wu and Yunsheng Jiang and Yufei Huo and Jianzhu Guo and Hao Li and Yinghang Song and Fei Ding and Qian He and Zheren Fu and Zhendong Mao and Yongdong Zhang},
-  journal={placeholder},
-  year={2026}
+          <pre class="citation-block"><code>@article{wu2026streamr1,
+  title   = {Stream-R1: Reliability-Complexity Aware Reward Distillation for Streaming Video Generation},
+  author  = {Bin Wu and Ziyu Jiang and Shaojin Wu and Mengqi Huang and Weinan Jia and Yuxin Wang and Zhendong Mao and Yongdong Zhang},
+  year    = {2026}
 }</code></pre>
         </div>
       </div>
     </section>
 
     <footer>
-      <div class="container">
-        <p>© 2026 Lance. All rights reserved.</p>
-        <p>
-          <a href="https://arxiv.org/abs/2604.24763">Paper</a> ·
-          <span>Code coming soon</span>
-        </p>
+      <div class="container footer-inner">
+        <div class="footer-brand">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <strong>Stream-R1</strong>
+        </div>
+        <div class="footer-links">
+          <a href="stream-r1.pdf">Paper</a>
+          <a href="https://github.com/wangbei1/Stream-R1" target="_blank" rel="noopener">Code</a>
+          <a href="mailto:huangmq@ustc.edu.cn">Contact</a>
+        </div>
+        <div class="footer-meta">
+          &copy; 2026 Stream-R1.
+        </div>
       </div>
     </footer>
 
