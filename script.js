@@ -1,179 +1,128 @@
-function initVideoPreviews() {
-  const items = Array.from(document.querySelectorAll(".video-item"));
-  if (!items.length) return;
+const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const prefersReducedMotion = () => motionQuery.matches;
 
-  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+function safePlay(video) {
+  if (!video) return;
+  const promise = video.play();
+  if (promise && typeof promise.catch === "function") {
+    promise.catch(() => {});
+  }
+}
 
-  const setActiveState = (item, active) => {
-    item.classList.toggle("is-active", active);
-    item.setAttribute("aria-pressed", active ? "true" : "false");
-    item.dataset.locked = active ? "true" : "false";
-  };
+function initDurationShowcase() {
+  const tabsContainer = document.querySelector(".duration-tabs");
+  const grid = document.querySelector("[data-duration-grid]");
+  if (!tabsContainer || !grid) return;
 
-  const pauseItem = (item, force = false) => {
-    const video = item.querySelector("video");
-    if (!video) return;
-    if (!force && item.dataset.locked === "true") return;
-    video.pause();
-    setActiveState(item, false);
-  };
+  const tabs = Array.from(tabsContainer.querySelectorAll(".duration-tab"));
+  const indicator = tabsContainer.querySelector(".duration-indicator");
+  const cards = Array.from(grid.querySelectorAll(".video-card"));
 
-  const pauseAll = (exceptItem = null) => {
-    items.forEach((item) => {
-      if (item === exceptItem) return;
-      pauseItem(item, true);
-    });
-  };
+  function moveIndicator(activeTab) {
+    if (!indicator || !activeTab) return;
+    const containerRect = tabsContainer.getBoundingClientRect();
+    const tabRect = activeTab.getBoundingClientRect();
+    indicator.style.left = `${tabRect.left - containerRect.left}px`;
+    indicator.style.width = `${tabRect.width}px`;
+  }
 
-  const playItem = (item, persist = false) => {
-    const video = item.querySelector("video");
-    if (!video) return;
-
-    pauseAll(item);
-    const promise = video.play();
-    setActiveState(item, persist);
-
-    if (promise && typeof promise.catch === "function") {
-      promise.catch(() => {
-        setActiveState(item, false);
-      });
-    }
-  };
-
-  items.forEach((item) => {
-    const video = item.querySelector("video");
-    const prompt = item.querySelector(".video-prompt")?.textContent?.trim();
-    if (!video) return;
-
-    item.tabIndex = 0;
-    item.setAttribute("role", "button");
-    item.setAttribute("aria-pressed", "false");
-    item.dataset.locked = "false";
-    if (prompt) {
-      item.setAttribute("aria-label", `${prompt} preview`);
-    }
-
-    video.autoplay = false;
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-    video.preload = "metadata";
-    video.pause();
-
-    item.addEventListener("mouseenter", () => {
-      if (motionQuery.matches) return;
-      playItem(item, false);
-    });
-
-    item.addEventListener("focusin", () => {
-      if (motionQuery.matches) return;
-      playItem(item, false);
-    });
-
-    item.addEventListener("mouseleave", () => {
-      pauseItem(item);
-    });
-
-    item.addEventListener("focusout", () => {
-      pauseItem(item);
-    });
-
-    item.addEventListener("click", () => {
-      if (item.dataset.locked === "true") {
-        pauseItem(item, true);
-        return;
+  function setDuration(duration, focusTab) {
+    tabs.forEach((tab) => {
+      const active = tab.dataset.duration === duration;
+      tab.classList.toggle("is-active", active);
+      tab.setAttribute("aria-selected", active ? "true" : "false");
+      if (active) {
+        moveIndicator(tab);
+        if (focusTab) tab.focus();
       }
-      playItem(item, true);
     });
 
-    item.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
+    cards.forEach((card) => {
+      const caseId = card.dataset.case;
+      const video = card.querySelector("video");
+      if (!video) return;
+      const wasPlaying = !video.paused;
+      const newSrc = `case/${duration}/${caseId}.mp4`;
+
+      // Avoid reloading if the source is unchanged.
+      if (video.src.endsWith(newSrc)) return;
+
+      card.classList.add("is-loading");
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
+      video.src = newSrc;
+      video.preload = "metadata";
+
+      const onCanPlay = () => {
+        card.classList.remove("is-loading");
+        if (wasPlaying && !prefersReducedMotion()) safePlay(video);
+        video.removeEventListener("loadeddata", onCanPlay);
+      };
+      video.addEventListener("loadeddata", onCanPlay);
+    });
+  }
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => setDuration(tab.dataset.duration));
+    tab.addEventListener("keydown", (event) => {
+      const idx = tabs.indexOf(tab);
+      if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
         event.preventDefault();
-        item.click();
+        const dir = event.key === "ArrowRight" ? 1 : -1;
+        const next = tabs[(idx + dir + tabs.length) % tabs.length];
+        setDuration(next.dataset.duration, true);
       }
     });
   });
 
-  if ("IntersectionObserver" in window) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) {
-            pauseItem(entry.target, true);
-          }
-        });
-      },
-      { threshold: 0.25 },
-    );
-
-    items.forEach((item) => observer.observe(item));
+  // Initial indicator position.
+  const active = tabs.find((tab) => tab.classList.contains("is-active")) || tabs[0];
+  if (active) moveIndicator(active);
+  // Re-measure after fonts load and on resize.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => moveIndicator(active));
   }
-
-  document.addEventListener("visibilitychange", () => {
-    if (document.hidden) {
-      pauseAll();
-    }
+  window.addEventListener("resize", () => {
+    const a = tabs.find((tab) => tab.classList.contains("is-active"));
+    if (a) moveIndicator(a);
   });
 }
 
-function initShowcaseVideos() {
-  const cards = Array.from(document.querySelectorAll(".showcase-card"));
+function initHoverVideoCards() {
+  const cards = Array.from(document.querySelectorAll(".video-card"));
   if (!cards.length) return;
 
-  const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  const stopCard = (card, reset = false) => {
-    const video = card.querySelector(".showcase-video");
-    if (!video) return;
-    video.pause();
-    if (reset) {
-      video.currentTime = 0;
-    }
-    card.classList.remove("is-playing");
-  };
-
-  const stopAll = (exceptCard = null) => {
-    cards.forEach((card) => {
-      if (card !== exceptCard) stopCard(card);
-    });
-  };
-
-  const playCard = (card) => {
-    if (motionQuery.matches) return;
-    const video = card.querySelector(".showcase-video");
-    if (!video) return;
-
-    stopAll(card);
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-
-    const promise = video.play();
-    if (promise && typeof promise.then === "function") {
-      promise
-        .then(() => card.classList.add("is-playing"))
-        .catch(() => card.classList.remove("is-playing"));
-      return;
-    }
-
-    card.classList.add("is-playing");
-  };
-
   cards.forEach((card) => {
-    const video = card.querySelector(".showcase-video");
+    const video = card.querySelector("video");
     if (!video) return;
+    card.tabIndex = 0;
+    card.setAttribute("role", "button");
 
-    video.autoplay = false;
-    video.muted = true;
-    video.loop = true;
-    video.playsInline = true;
-    video.preload = "metadata";
-    video.pause();
+    const play = () => {
+      if (prefersReducedMotion()) return;
+      safePlay(video);
+      card.classList.add("is-active");
+    };
+    const pause = () => {
+      video.pause();
+      card.classList.remove("is-active");
+    };
 
-    card.addEventListener("mouseenter", () => playCard(card));
-    card.addEventListener("focusin", () => playCard(card));
-    card.addEventListener("mouseleave", () => stopCard(card));
-    card.addEventListener("focusout", () => stopCard(card));
+    card.addEventListener("mouseenter", play);
+    card.addEventListener("focusin", play);
+    card.addEventListener("mouseleave", pause);
+    card.addEventListener("focusout", pause);
+    card.addEventListener("click", () => {
+      if (video.paused) play();
+      else pause();
+    });
+    card.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        card.click();
+      }
+    });
   });
 
   if ("IntersectionObserver" in window) {
@@ -181,21 +130,115 @@ function initShowcaseVideos() {
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) {
-            stopCard(entry.target, true);
+            const video = entry.target.querySelector("video");
+            if (video) {
+              video.pause();
+              entry.target.classList.remove("is-active");
+            }
           }
         });
       },
-      { threshold: 0.1 },
+      { threshold: 0.2 },
     );
-
     cards.forEach((card) => observer.observe(card));
   }
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
-      stopAll();
+      cards.forEach((card) => {
+        const video = card.querySelector("video");
+        if (video) video.pause();
+        card.classList.remove("is-active");
+      });
     }
   });
+}
+
+function initCompareRows() {
+  const rows = Array.from(document.querySelectorAll(".compare-row"));
+  if (!rows.length) return;
+
+  rows.forEach((row) => {
+    const videos = Array.from(row.querySelectorAll("video"));
+    if (!videos.length) return;
+
+    const playAll = () => {
+      if (prefersReducedMotion()) return;
+      videos.forEach((v) => {
+        v.currentTime = 0;
+      });
+      videos.forEach(safePlay);
+    };
+    const pauseAll = () => {
+      videos.forEach((v) => v.pause());
+    };
+
+    row.addEventListener("mouseenter", playAll);
+    row.addEventListener("mouseleave", pauseAll);
+    row.addEventListener("focusin", playAll);
+    row.addEventListener("focusout", pauseAll);
+    row.tabIndex = 0;
+    row.addEventListener("click", () => {
+      if (videos[0]?.paused) playAll();
+      else pauseAll();
+    });
+  });
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) {
+            entry.target
+              .querySelectorAll("video")
+              .forEach((v) => v.pause());
+          }
+        });
+      },
+      { threshold: 0.15 },
+    );
+    rows.forEach((row) => observer.observe(row));
+  }
+}
+
+function initVisSlider() {
+  const root = document.querySelector("[data-vis]");
+  if (!root) return;
+
+  const slider = root.querySelector(".vis-slider");
+  const ticks = Array.from(root.querySelectorAll(".vis-ticks span"));
+  const stacks = Array.from(root.querySelectorAll(".vis-img-stack"));
+  if (!slider) return;
+
+  const max = parseInt(slider.max, 10) || 3;
+
+  function setActive(idx) {
+    stacks.forEach((stack) => {
+      const imgs = stack.querySelectorAll(".vis-img");
+      imgs.forEach((img) => {
+        img.classList.toggle("is-active", parseInt(img.dataset.pos, 10) === idx);
+      });
+    });
+    ticks.forEach((tick, i) => tick.classList.toggle("is-active", i === idx));
+    const progress = max === 0 ? 0 : (idx / max) * 100;
+    slider.style.setProperty("--vis-progress", `${progress}%`);
+    slider.setAttribute("aria-valuetext", `Case ${idx + 1} of ${max + 1}`);
+  }
+
+  slider.addEventListener("input", () => {
+    const idx = parseInt(slider.value, 10);
+    setActive(idx);
+  });
+
+  ticks.forEach((tick, i) => {
+    tick.style.cursor = "pointer";
+    tick.addEventListener("click", () => {
+      slider.value = String(i);
+      setActive(i);
+    });
+  });
+
+  setActive(parseInt(slider.value, 10) || 0);
 }
 
 function initCitationCopy() {
@@ -203,50 +246,51 @@ function initCitationCopy() {
   const citation = document.querySelector(".citation-block code");
   if (!button || !citation) return;
 
-  const resetButton = () => {
+  const reset = () => {
     button.classList.remove("is-copied");
     button.setAttribute("aria-label", "Copy citation");
     button.title = "Copy citation";
   };
 
-  const copyWithFallback = async (text) => {
+  const copyText = async (text) => {
     if (navigator.clipboard && window.isSecureContext) {
       try {
         await navigator.clipboard.writeText(text);
         return;
       } catch {
-        // Continue to the selection-based fallback below.
+        // fall through to fallback
       }
     }
-
-    const textarea = document.createElement("textarea");
-    textarea.value = text;
-    textarea.setAttribute("readonly", "");
-    textarea.style.position = "fixed";
-    textarea.style.top = "-9999px";
-    document.body.append(textarea);
-    textarea.select();
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.top = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
     document.execCommand("copy");
-    textarea.remove();
+    ta.remove();
   };
 
   button.addEventListener("click", async () => {
     try {
-      await copyWithFallback(citation.textContent.trim());
+      await copyText(citation.textContent.trim());
       button.classList.add("is-copied");
       button.setAttribute("aria-label", "Citation copied");
       button.title = "Citation copied";
-      window.setTimeout(resetButton, 1600);
+      window.setTimeout(reset, 1600);
     } catch {
       button.setAttribute("aria-label", "Copy failed");
       button.title = "Copy failed";
-      window.setTimeout(resetButton, 1600);
+      window.setTimeout(reset, 1600);
     }
   });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  initShowcaseVideos();
-  initVideoPreviews();
+  initDurationShowcase();
+  initHoverVideoCards();
+  initCompareRows();
+  initVisSlider();
   initCitationCopy();
 });
