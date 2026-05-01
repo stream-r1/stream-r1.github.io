@@ -4,20 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
-      Stream-R1: Reliability-Complexity Aware Reward Distillation for Streaming Video Generation
+      Stream-R1 — Reliability-Complexity Aware Reward Distillation for Streaming Video Generation
     </title>
     <meta
       name="description"
-      content="Stream-R1 is a reliability-complexity aware reward distillation framework for streaming video generation."
+      content="Stream-R1 reweights distribution-matching distillation along Inter-Reliability and Intra-Complexity axes via a single shared video reward model."
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%230a84ff'/%3E%3Cstop offset='1' stop-color='%235e5ce6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cpath d='M20 22h18a8 8 0 010 16h-8l-4 6H22a8 8 0 010-16h6' fill='none' stroke='white' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ff8a3d'/%3E%3Cstop offset='0.6' stop-color='%23d83a8c'/%3E%3Cstop offset='1' stop-color='%236a4cff'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='14' fill='%23faf9f4'/%3E%3Ccircle cx='32' cy='32' r='10' fill='url(%23g)'/%3E%3C/svg%3E"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
@@ -35,24 +35,27 @@
           <a href="#method">Method</a>
           <a href="#duration">Long Video</a>
           <a href="#compare">Comparison</a>
-          <a href="#visualization">Visualization</a>
+          <a href="#visualization">Saliency</a>
           <a href="#results">Results</a>
+          <a href="#ablation">Ablation</a>
           <a href="#citation">Cite</a>
         </div>
       </div>
     </nav>
 
     <header class="hero" id="top">
-      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="hero-canvas" aria-hidden="true"></div>
+      <div class="hero-grain" aria-hidden="true"></div>
       <div class="container hero-inner">
         <div class="eyebrow">
           <span class="dot"></span>
-          <span>Streaming Video Generation</span>
+          <span>Streaming Video Generation · Under Double-Blind Review</span>
         </div>
+
         <h1 class="title">
-          <span class="title-accent">Stream-R1:</span>
-          Reliability-Complexity Aware Reward Distillation
-          <span class="title-fade">for Streaming Video Generation</span>
+          <span class="title-mark">Stream-R1</span>
+          <span class="title-line">Reliability-Complexity Aware Reward Distillation</span>
+          <span class="title-sub">for streaming video generation</span>
         </h1>
 
         <div class="authors">
@@ -67,50 +70,26 @@
         <div class="hero-actions">
           <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="paper">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <path
-                d="M14 3v5h5M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="1.7"
-              />
+              <path d="M14 3v5h5M7 3h7l5 5v13a1 1 0 01-1 1H7a1 1 0 01-1-1V4a1 1 0 011-1z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" />
             </svg>
             Paper <span class="badge">soon</span>
           </a>
           <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="arxiv">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <path
-                d="M3 5h18M3 12h18M3 19h18"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="1.7"
-              />
+              <path d="M3 5h18M3 12h18M3 19h18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
             </svg>
             arXiv <span class="badge">soon</span>
           </a>
           <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="code">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
-              <path
-                d="M12 2a10 10 0 00-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.99 1.03-2.69-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.02a9.55 9.55 0 015 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.65.64.7 1.03 1.6 1.03 2.69 0 3.84-2.34 4.69-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0012 2z"
-                fill="currentColor"
-              />
+              <path d="M8 4l-6 8 6 8M16 4l6 8-6 8" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" />
             </svg>
             Code <span class="badge">soon</span>
           </a>
           <a class="btn btn-secondary" href="#" aria-disabled="true" data-link="hf">
             <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
-              <path
-                d="M8 13c1 1.5 2.4 2.5 4 2.5s3-1 4-2.5"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-width="1.7"
-              />
-              <circle cx="9" cy="10" r=".9" fill="currentColor" />
-              <circle cx="15" cy="10" r=".9" fill="currentColor" />
+              <path d="M8 13c1 1.5 2.4 2.5 4 2.5s3-1 4-2.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.7" />
             </svg>
             Models <span class="badge">soon</span>
           </a>
@@ -129,7 +108,7 @@
           </div>
           <div>
             <dt>Long Video</dt>
-            <dd>up to 180s</dd>
+            <dd>180 s</dd>
             <span>autoregressive streaming</span>
           </div>
           <div>
@@ -165,7 +144,7 @@
           change and zero inference overhead.
         </p>
 
-        <div class="pillars">
+        <div class="pillars reveal">
           <article>
             <span class="pillar-num">01</span>
             <h3>Inter-Reliability Weighting</h3>
@@ -201,7 +180,7 @@
     </section>
 
     <section class="section" id="motivation">
-      <div class="container">
+      <div class="container reveal">
         <p class="section-eyebrow">Motivation</p>
         <h2 class="section-title">Two complementary axes of variance</h2>
         <p class="section-copy">
@@ -224,7 +203,7 @@
     </section>
 
     <section class="section section-light" id="method">
-      <div class="container">
+      <div class="container reveal">
         <p class="section-eyebrow">Method</p>
         <h2 class="section-title">A single reward model, two complementary weights</h2>
         <p class="section-copy">
@@ -250,127 +229,101 @@
     <section class="section section-feature" id="duration">
       <div class="container">
         <p class="section-eyebrow">Long Video Generation</p>
-        <h2 class="section-title">From 10 seconds to 3 minutes &mdash; one model</h2>
+        <h2 class="section-title">Three minutes of streaming, in one shot</h2>
         <p class="section-copy">
-          Following the Reward Forcing protocol, we generate at five durations
-          using autoregressive block-wise generation with EMA-Sink attention.
-          Pick a duration to swap every clip in place; quality and motion stay
-          coherent as the rollout extends.
+          Following the Reward Forcing protocol, we generate the same prompt
+          autoregressively at <strong>five durations</strong> &mdash; 10s, 30s,
+          60s, 2min, and 3min. The featured player runs the full
+          <strong>180-second rollout</strong>; the timeline below marks every
+          shorter duration so you can see exactly how the model passes through
+          each milestone without quality drift.
         </p>
 
-        <div
-          class="duration-tabs"
-          role="tablist"
-          aria-label="Choose video duration"
-        >
-          <button class="duration-tab is-active" role="tab" data-duration="10s" aria-selected="true">10s</button>
-          <button class="duration-tab" role="tab" data-duration="30s" aria-selected="false">30s</button>
-          <button class="duration-tab" role="tab" data-duration="60s" aria-selected="false">60s</button>
-          <button class="duration-tab" role="tab" data-duration="120s" aria-selected="false">2 min</button>
-          <button class="duration-tab" role="tab" data-duration="180s" aria-selected="false">3 min</button>
-          <span class="duration-indicator" aria-hidden="true"></span>
-        </div>
+        <div class="stage reveal" data-stage>
+          <div class="stage-feature">
+            <div class="stage-frame">
+              <video
+                class="stage-video"
+                data-stage-video
+                src="case/180s/0000_seed0.mp4"
+                autoplay loop muted playsinline preload="auto"
+              ></video>
+              <div class="stage-overlay">
+                <div class="stage-meta">
+                  <span class="stage-meta-eyebrow">Now playing</span>
+                  <span class="stage-case-label" data-stage-case-label>Case 01</span>
+                </div>
+                <span class="stage-pill">
+                  <span class="live-dot"></span>
+                  Streaming · 3 min · 23.1 FPS
+                </span>
+              </div>
+            </div>
 
-        <div class="video-grid duration-grid" data-duration-grid>
-          <article class="video-card" data-case="0000_seed0">
-            <video
-              src="case/10s/0000_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 01</span></div>
-          </article>
-          <article class="video-card" data-case="0004_seed0">
-            <video
-              src="case/10s/0004_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 02</span></div>
-          </article>
-          <article class="video-card" data-case="0043_seed0">
-            <video
-              src="case/10s/0043_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 03</span></div>
-          </article>
-          <article class="video-card" data-case="0048_seed0">
-            <video
-              src="case/10s/0048_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 04</span></div>
-          </article>
-          <article class="video-card" data-case="0069_seed0">
-            <video
-              src="case/10s/0069_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 05</span></div>
-          </article>
-          <article class="video-card" data-case="0075_seed0">
-            <video
-              src="case/10s/0075_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 06</span></div>
-          </article>
-          <article class="video-card" data-case="0095_seed0">
-            <video
-              src="case/10s/0095_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 07</span></div>
-          </article>
-          <article class="video-card" data-case="0115_seed0">
-            <video
-              src="case/10s/0115_seed0.mp4"
-              loop
-              muted
-              playsinline
-              preload="metadata"
-            ></video>
-            <div class="video-meta"><span>Case 08</span></div>
-          </article>
-        </div>
+            <div class="stage-timeline" data-stage-timeline>
+              <div class="timeline-track" data-timeline-track>
+                <div class="timeline-progress" data-timeline-progress></div>
+                <div class="timeline-thumb" data-timeline-thumb></div>
+              </div>
+              <div class="timeline-markers" data-timeline-markers>
+                <div class="timeline-mark" style="left: 5.555%" data-mark="10s"><span>10s</span></div>
+                <div class="timeline-mark" style="left: 16.666%" data-mark="30s"><span>30s</span></div>
+                <div class="timeline-mark" style="left: 33.333%" data-mark="60s"><span>1 min</span></div>
+                <div class="timeline-mark" style="left: 66.666%" data-mark="120s"><span>2 min</span></div>
+                <div class="timeline-mark" style="left: 99.5%" data-mark="180s"><span>3 min</span></div>
+              </div>
+              <div class="timeline-times">
+                <span data-timeline-elapsed>0:00</span> /
+                <span>3:00</span>
+              </div>
+            </div>
+          </div>
 
-        <p class="footnote">
-          Hover any clip to play. The same prompt is used across all durations
-          &mdash; click a different duration tab to compare quality drift over
-          time.
-        </p>
+          <div class="stage-cases" role="tablist" aria-label="Choose case">
+            <button class="case-thumb is-active" role="tab" data-case="0000_seed0" data-label="01" aria-selected="true">
+              <video src="case/10s/0000_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0004_seed0" data-label="02" aria-selected="false">
+              <video src="case/10s/0004_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0043_seed0" data-label="03" aria-selected="false">
+              <video src="case/10s/0043_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0048_seed0" data-label="04" aria-selected="false">
+              <video src="case/10s/0048_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0069_seed0" data-label="05" aria-selected="false">
+              <video src="case/10s/0069_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0075_seed0" data-label="06" aria-selected="false">
+              <video src="case/10s/0075_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0095_seed0" data-label="07" aria-selected="false">
+              <video src="case/10s/0095_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+            <button class="case-thumb" role="tab" data-case="0115_seed0" data-label="08" aria-selected="false">
+              <video src="case/10s/0115_seed0.mp4" loop muted playsinline preload="metadata"></video>
+            </button>
+          </div>
+
+          <p class="stage-footnote">
+            Click any thumbnail to swap the featured prompt &middot; click on
+            the timeline or any milestone (10s / 30s / 1min / 2min / 3min) to
+            jump.
+          </p>
+        </div>
       </div>
     </section>
 
     <section class="section" id="compare">
-      <div class="container">
+      <div class="container reveal">
         <p class="section-eyebrow">Method Comparison</p>
-        <h2 class="section-title">Reward Forcing vs. Stream-R1</h2>
+        <h2 class="section-title"><em>Reward Forcing</em> vs. Stream-R1</h2>
         <p class="section-copy">
           Same prompt, same seed. Reward Forcing applies a single global scalar
           reward; Stream-R1 additionally redistributes the optimization signal
-          across reliable rollouts and complex regions. Hover a row to play
-          both clips in sync.
+          across reliable rollouts and complex regions. Each row plays the two
+          clips in sync the moment it scrolls into view.
         </p>
 
         <div class="compare-grid">
@@ -380,133 +333,61 @@
           </div>
           <div class="compare-row" data-compare="0033_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0033_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0033_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0033_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0033_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
           <div class="compare-row" data-compare="0038_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0038_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0038_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0038_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0038_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
           <div class="compare-row" data-compare="0039_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0039_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0039_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0039_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0039_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
           <div class="compare-row" data-compare="0067_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0067_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0067_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0067_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0067_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
           <div class="compare-row" data-compare="0123_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0123_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0123_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0123_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0123_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
           <div class="compare-row" data-compare="0126_seed0">
             <div class="compare-cell">
-              <video
-                src="experiment/reward%20forcing/0126_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/reward%20forcing/0126_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-baseline">Baseline</span>
             </div>
             <div class="compare-cell">
-              <video
-                src="experiment/stream-r1/0126_seed0.mp4"
-                loop
-                muted
-                playsinline
-                preload="metadata"
-              ></video>
+              <video src="experiment/stream-r1/0126_seed0.mp4" loop muted playsinline preload="metadata"></video>
               <span class="compare-tag tag-ours">Ours</span>
             </div>
           </div>
@@ -515,37 +396,46 @@
     </section>
 
     <section class="section section-light" id="visualization">
-      <div class="container">
-        <p class="section-eyebrow">Reward Saliency Visualization</p>
-        <h2 class="section-title">Where the gradient pressure goes</h2>
+      <div class="container reveal">
+        <p class="section-eyebrow">Spatiotemporal Saliency · Controlled Stress Test</p>
+        <h2 class="section-title">Where the reward gradient looks</h2>
         <p class="section-copy">
-          Drag the slider to walk through four cases. The left panel is the
-          generated frame; the right panel overlays the per-pixel saliency
-          recovered from back-propagating the reward model. Bright regions
-          drive larger gradient updates &mdash; typically hands, edges, and
-          fast-moving content.
+          To probe whether the spatiotemporal weights actually respond to local
+          quality deficiency, we run a controlled experiment: <strong>Gaussian
+          blur is injected only into the lower half of each frame</strong>, so
+          every frame contains a clean (top) versus degraded (bottom) contrast.
+          Across the four frames, the corrupted area progressively expands from
+          left to right. We then back-propagate the reward score through the
+          vision encoder to recover a per-pixel gradient saliency. Drag the
+          slider to step through.
         </p>
 
         <div class="vis" data-vis>
           <div class="vis-pair">
             <figure class="vis-cell">
-              <span class="vis-tag">Generated frame</span>
+              <span class="vis-tag">Degraded frame</span>
               <div class="vis-img-stack">
-                <img class="vis-img is-active" data-pos="0" src="0.png" alt="Case 1 frame" />
-                <img class="vis-img" data-pos="1" src="1.png" alt="Case 2 frame" />
-                <img class="vis-img" data-pos="2" src="2.png" alt="Case 3 frame" />
-                <img class="vis-img" data-pos="3" src="3.png" alt="Case 4 frame" />
+                <img class="vis-img is-active" data-pos="0" src="0.png" alt="Frame 1: small blur region in lower half" />
+                <img class="vis-img" data-pos="1" src="1.png" alt="Frame 2: growing blur region" />
+                <img class="vis-img" data-pos="2" src="2.png" alt="Frame 3: larger blur region" />
+                <img class="vis-img" data-pos="3" src="3.png" alt="Frame 4: largest blur region" />
               </div>
             </figure>
             <figure class="vis-cell">
-              <span class="vis-tag vis-tag-accent">Reward saliency</span>
+              <span class="vis-tag vis-tag-accent">Reward saliency overlay</span>
               <div class="vis-img-stack">
-                <img class="vis-img is-active" data-pos="0" src="0-visiual.png" alt="Case 1 saliency" />
-                <img class="vis-img" data-pos="1" src="1-visiual.png" alt="Case 2 saliency" />
-                <img class="vis-img" data-pos="2" src="2-visiual.png" alt="Case 3 saliency" />
-                <img class="vis-img" data-pos="3" src="3-visiual.png" alt="Case 4 saliency" />
+                <img class="vis-img is-active" data-pos="0" src="0-visiual.png" alt="Frame 1 saliency overlay" />
+                <img class="vis-img" data-pos="1" src="1-visiual.png" alt="Frame 2 saliency overlay" />
+                <img class="vis-img" data-pos="2" src="2-visiual.png" alt="Frame 3 saliency overlay" />
+                <img class="vis-img" data-pos="3" src="3-visiual.png" alt="Frame 4 saliency overlay" />
               </div>
             </figure>
+          </div>
+
+          <div class="vis-readout" data-vis-readout>
+            <span class="vis-readout-label">Per-frame temporal weight w<sub>t</sub></span>
+            <span class="vis-readout-value" data-vis-readout-value>0.587</span>
+            <span class="vis-readout-bar" data-vis-readout-bar style="--vis-bar: 0%"></span>
           </div>
 
           <div class="vis-control">
@@ -556,21 +446,31 @@
               max="3"
               step="1"
               value="0"
-              aria-label="Visualization case"
+              aria-label="Frame index"
             />
             <div class="vis-ticks" aria-hidden="true">
-              <span class="is-active">Case 1</span>
-              <span>Case 2</span>
-              <span>Case 3</span>
-              <span>Case 4</span>
+              <span class="is-active">Frame 1<em>small blur</em></span>
+              <span>Frame 2<em>growing</em></span>
+              <span>Frame 3<em>larger</em></span>
+              <span>Frame 4<em>most degraded</em></span>
             </div>
           </div>
         </div>
+
+        <p class="vis-footnote">
+          Within each frame, saliency is biased toward the lower (blurred)
+          half rather than the visually intact upper half. As the blurred
+          region grows, the spatial saliency tightens onto its interior. Per-frame
+          temporal weights climb monotonically from <strong>0.587</strong> to
+          <strong>2.117</strong> &mdash; not hand-engineered, this behavior
+          emerges purely from the reward-model gradient, automatically allocating
+          more learning signal to frames that need it most.
+        </p>
       </div>
     </section>
 
     <section class="section" id="results">
-      <div class="container">
+      <div class="container reveal">
         <p class="section-eyebrow">Quantitative Results</p>
         <h2 class="section-title">Beating the multi-step teacher at 30&times; speed</h2>
         <p class="section-copy">
@@ -580,7 +480,12 @@
         </p>
 
         <div class="result-block">
-          <h3 class="result-title">VBench (5s, 832&times;480)</h3>
+          <h3 class="result-title">VBench &mdash; 5-second video, 832&times;480</h3>
+          <p class="result-caption">
+            Best in highlighted mark. Stream-R1 achieves the highest Total of
+            any compared method, surpassing both its diffusion teacher (84.26)
+            and the previous best distilled model Reward Forcing (84.13).
+          </p>
           <div class="table-wrap">
             <table class="result-table">
               <thead>
@@ -594,48 +499,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr class="group-row">
-                  <td colspan="6">Diffusion models</td>
-                </tr>
-                <tr>
-                  <td>LTX-Video</td><td>1.9B</td><td>8.98</td><td>80.00</td><td>82.30</td><td>70.79</td>
-                </tr>
-                <tr>
-                  <td>Wan2.1 (teacher)</td><td>1.3B</td><td>0.78</td><td>84.26</td><td class="best">85.30</td><td>80.09</td>
-                </tr>
-                <tr class="group-row">
-                  <td colspan="6">Autoregressive / streaming models</td>
-                </tr>
-                <tr>
-                  <td>SkyReels-V2</td><td>1.3B</td><td>0.49</td><td>82.67</td><td>84.70</td><td>74.53</td>
-                </tr>
-                <tr>
-                  <td>MAGI-1</td><td>4.5B</td><td>0.19</td><td>79.18</td><td>82.04</td><td>67.74</td>
-                </tr>
-                <tr>
-                  <td>NOVA</td><td>0.6B</td><td>0.88</td><td>80.12</td><td>80.39</td><td>79.05</td>
-                </tr>
-                <tr>
-                  <td>Pyramid Flow</td><td>2B</td><td>6.7</td><td>81.72</td><td>84.74</td><td>69.62</td>
-                </tr>
-                <tr>
-                  <td>CausVid</td><td>1.3B</td><td>17.0</td><td>82.88</td><td>83.93</td><td>78.69</td>
-                </tr>
-                <tr>
-                  <td>Self Forcing</td><td>1.3B</td><td>17.0</td><td>83.80</td><td>84.59</td><td>80.64</td>
-                </tr>
-                <tr>
-                  <td>LongLive</td><td>1.3B</td><td>20.7</td><td>83.22</td><td>83.68</td><td>81.37</td>
-                </tr>
-                <tr>
-                  <td>Rolling Forcing</td><td>1.3B</td><td>17.5</td><td>81.22</td><td>84.08</td><td>69.78</td>
-                </tr>
-                <tr class="group-row">
-                  <td colspan="6">Reward-guided distillation</td>
-                </tr>
-                <tr>
-                  <td>Reward Forcing</td><td>1.3B</td><td>23.1</td><td>84.13</td><td>84.84</td><td>81.32</td>
-                </tr>
+                <tr class="group-row"><td colspan="6">Diffusion models</td></tr>
+                <tr><td>LTX-Video</td><td>1.9B</td><td>8.98</td><td>80.00</td><td>82.30</td><td>70.79</td></tr>
+                <tr><td>Wan2.1 <em>(teacher)</em></td><td>1.3B</td><td>0.78</td><td>84.26</td><td class="best">85.30</td><td>80.09</td></tr>
+                <tr class="group-row"><td colspan="6">Autoregressive / streaming models</td></tr>
+                <tr><td>SkyReels-V2</td><td>1.3B</td><td>0.49</td><td>82.67</td><td>84.70</td><td>74.53</td></tr>
+                <tr><td>MAGI-1</td><td>4.5B</td><td>0.19</td><td>79.18</td><td>82.04</td><td>67.74</td></tr>
+                <tr><td>NOVA</td><td>0.6B</td><td>0.88</td><td>80.12</td><td>80.39</td><td>79.05</td></tr>
+                <tr><td>Pyramid Flow</td><td>2B</td><td>6.7</td><td>81.72</td><td>84.74</td><td>69.62</td></tr>
+                <tr><td>CausVid</td><td>1.3B</td><td>17.0</td><td>82.88</td><td>83.93</td><td>78.69</td></tr>
+                <tr><td>Self Forcing</td><td>1.3B</td><td>17.0</td><td>83.80</td><td>84.59</td><td>80.64</td></tr>
+                <tr><td>LongLive</td><td>1.3B</td><td>20.7</td><td>83.22</td><td>83.68</td><td>81.37</td></tr>
+                <tr><td>Rolling Forcing</td><td>1.3B</td><td>17.5</td><td>81.22</td><td>84.08</td><td>69.78</td></tr>
+                <tr class="group-row"><td colspan="6">Reward-guided distillation</td></tr>
+                <tr><td>Reward Forcing</td><td>1.3B</td><td>23.1</td><td>84.13</td><td>84.84</td><td>81.32</td></tr>
                 <tr class="ours-row">
                   <td>Stream-R1 <em>(ours)</em></td>
                   <td>1.3B</td>
@@ -650,7 +527,13 @@
         </div>
 
         <div class="result-block">
-          <h3 class="result-title">VLM evaluation on 60-second videos (Qwen3-VL)</h3>
+          <h3 class="result-title">Qwen3-VL judgement &mdash; 60-second video</h3>
+          <p class="result-caption">
+            Each video scored 1&ndash;5 on three axes by a strong VLM judge.
+            Stream-R1 attains the best Visual Quality and Text Alignment;
+            we trade a small Dynamic margin for gains on the other two axes,
+            consistent with the balanced multi-dimensional design.
+          </p>
           <div class="table-wrap">
             <table class="result-table compact">
               <thead>
@@ -678,39 +561,116 @@
           </div>
         </div>
 
-        <div class="result-figures">
-          <figure class="figure-panel">
-            <img src="experiment/5s-vbench.png" alt="5-second VBench breakdown" loading="lazy" />
-            <figcaption>
-              <strong>5-second VBench breakdown.</strong> Stream-R1 improves
-              every dimension over Reward Forcing at identical throughput.
-            </figcaption>
-          </figure>
-          <figure class="figure-panel">
-            <img
-              src="experiment/compare-reward-forcing.png"
-              alt="Per-metric quality versus video length"
-              loading="lazy"
-            />
-            <figcaption>
-              <strong>Quality vs. video length.</strong> Stream-R1 (blue) widens
-              its lead over Reward Forcing (orange) as duration grows,
-              especially at 120s and 180s.
-            </figcaption>
-          </figure>
-          <figure class="figure-panel">
-            <img src="experiment/qwen236B.png" alt="Qwen3-VL 236B evaluation" loading="lazy" />
-            <figcaption>
-              <strong>Qwen3-VL 236B evaluation.</strong> Larger judge confirms
-              the same trend on visual, dynamic, and text-alignment axes.
-            </figcaption>
-          </figure>
+        <figure class="figure-panel">
+          <img src="experiment/compare-reward-forcing.png" alt="Per-metric quality versus video length" loading="lazy" />
+          <figcaption>
+            <strong>Figure 3.</strong> Per-metric quality vs. video length.
+            Stream-R1 widens its lead over Reward Forcing as duration grows
+            &mdash; especially at 120s and 180s, confirming that
+            spatiotemporal reward-guided weighting mitigates the quality drift
+            accumulated during long autoregressive rollouts.
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section section-light" id="ablation">
+      <div class="container reveal">
+        <p class="section-eyebrow">Ablation</p>
+        <h2 class="section-title">Each component contributes</h2>
+        <p class="section-copy">
+          We progressively add each component on top of the standard DMD
+          baseline, evaluating short videos on VBench (5s) and long videos on
+          a 60-second protocol. <strong>Drift</strong> measures autoregressive
+          quality decay (lower is better).
+        </p>
+
+        <div class="result-block">
+          <div class="table-wrap">
+            <table class="result-table ablation-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">Variant</th>
+                  <th colspan="3" class="th-group">VBench (5 s)</th>
+                  <th colspan="2" class="th-group">Long Video (60 s)</th>
+                </tr>
+                <tr>
+                  <th>Total&uarr;</th><th>Quality&uarr;</th><th>Semantic&uarr;</th>
+                  <th>Total&uarr;</th><th>Drift&darr;</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>DMD baseline</td>
+                  <td>83.44</td><td>84.16</td><td>80.55</td><td>79.45</td><td>2.479</td>
+                </tr>
+                <tr>
+                  <td>+ Spatial reward W<sub>s</sub> &nbsp;<small>(&sigma;<sub>min</sub>=0.15)</small></td>
+                  <td>83.67</td><td>84.46</td><td>80.51</td><td>80.71</td><td>2.653</td>
+                </tr>
+                <tr>
+                  <td>+ Balanced multi-dim reward</td>
+                  <td>83.68</td><td>84.44</td><td>80.62</td><td>80.73</td><td>2.697</td>
+                </tr>
+                <tr class="ours-row">
+                  <td>+ Temporal reward W<sub>t</sub> <em>(full)</em></td>
+                  <td class="best">84.40</td>
+                  <td class="best">85.14</td>
+                  <td class="best">81.44</td>
+                  <td class="best">80.86</td>
+                  <td class="best">2.417</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="result-block">
+          <h3 class="result-title">Human preference &mdash; 5 annotators, 50 long videos</h3>
+          <p class="result-caption">
+            Win rate (%) of Stream-R1 vs. Reward Forcing on 60-second videos,
+            averaged over five annotators per video. Win Rate = (Win + 0.5
+            &times; Tie) / Total. Stream-R1 wins on every dimension, with the
+            largest margin on motion quality.
+          </p>
+          <div class="winrate-grid" data-winrates>
+            <div class="winrate-row">
+              <span class="winrate-label">Temporal Consistency</span>
+              <div class="winrate-bar">
+                <div class="winrate-fill" style="--win: 51.0"><span>51.0%</span></div>
+              </div>
+            </div>
+            <div class="winrate-row">
+              <span class="winrate-label">Dynamic Reasonableness</span>
+              <div class="winrate-bar">
+                <div class="winrate-fill" style="--win: 63.0"><span>63.0%</span></div>
+              </div>
+            </div>
+            <div class="winrate-row">
+              <span class="winrate-label">Visual Quality &amp; Aesthetics</span>
+              <div class="winrate-bar">
+                <div class="winrate-fill" style="--win: 60.0"><span>60.0%</span></div>
+              </div>
+            </div>
+            <div class="winrate-row">
+              <span class="winrate-label">Text-Video Alignment</span>
+              <div class="winrate-bar">
+                <div class="winrate-fill" style="--win: 54.1"><span>54.1%</span></div>
+              </div>
+            </div>
+            <div class="winrate-row">
+              <span class="winrate-label">Overall Preference</span>
+              <div class="winrate-bar">
+                <div class="winrate-fill" style="--win: 57.0"><span>57.0%</span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="section section-light" id="citation">
-      <div class="container narrow">
+    <section class="section" id="citation">
+      <div class="container narrow reveal">
         <p class="section-eyebrow">BibTeX</p>
         <h2 class="section-title">Cite Stream-R1</h2>
         <div class="citation-card">
@@ -720,45 +680,12 @@
             aria-label="Copy citation"
             title="Copy citation"
           >
-            <svg
-              class="copy-icon"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              width="17"
-              height="17"
-            >
-              <rect
-                x="8"
-                y="8"
-                width="11"
-                height="11"
-                rx="2"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-              ></rect>
-              <path
-                d="M5 15H4a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-              ></path>
+            <svg class="copy-icon" aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+              <rect x="8" y="8" width="11" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.7" />
+              <path d="M5 15H4a2 2 0 01-2-2V5a2 2 0 012-2h8a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="1.7" />
             </svg>
-            <svg
-              class="check-icon"
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              width="17"
-              height="17"
-            >
-              <path
-                d="M20 6 9 17l-5-5"
-                fill="none"
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2.4"
-              ></path>
+            <svg class="check-icon" aria-hidden="true" viewBox="0 0 24 24" width="17" height="17">
+              <path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.4" />
             </svg>
             <span class="copy-text">Copy</span>
           </button>
@@ -776,14 +703,12 @@
       <div class="container footer-inner">
         <div class="footer-brand">
           <span class="brand-mark" aria-hidden="true"></span>
-          <strong>Stream-R1</strong>
+          Stream-R1
         </div>
         <div class="footer-links">
           <span>Under double-blind review</span>
         </div>
-        <div class="footer-meta">
-          &copy; 2026 Stream-R1.
-        </div>
+        <div class="footer-meta">&copy; 2026 Stream-R1.</div>
       </div>
     </footer>
 
