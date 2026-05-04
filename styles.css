@@ -628,6 +628,7 @@ code, .citation-block {
 .marquee-video:hover::after { opacity: 0.15; }
 .marquee-video:hover::before { border-color: rgba(255, 255, 255, 0.55); }
 
+/* Fullscreen-hint icon overlays on hover */
 .marquee-video:hover .marquee-tag {
   background: var(--accent);
 }
@@ -879,7 +880,7 @@ code, .citation-block {
   top: 0;
   bottom: 0;
   z-index: 5;
-  width: clamp(380px, 44vw, 720px);
+  width: clamp(320px, 38vw, 560px);
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -931,7 +932,9 @@ code, .citation-block {
   align-items: flex-start;
   font-family: "Instrument Serif", "Source Serif 4", Georgia, serif;
   font-style: italic;
-  line-height: 0.9;
+  line-height: 0.95;
+  max-height: 100%;
+  overflow: visible;
 }
 
 .duration-row[data-direction="right"] .duration-display-text {
@@ -940,9 +943,9 @@ code, .citation-block {
 }
 
 .duration-display-num {
-  font-size: clamp(170px, 26vw, 380px);
-  line-height: 0.82;
-  letter-spacing: -0.05em;
+  font-size: clamp(120px, 18vw, 240px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
   background: linear-gradient(
     125deg,
     var(--ink) 25%,
@@ -954,6 +957,8 @@ code, .citation-block {
   color: transparent;
   font-weight: 400;
   text-shadow: 0 4px 24px rgba(196, 86, 30, 0.08);
+  padding-top: 0.04em;
+  padding-bottom: 0.02em;
 }
 
 .duration-display-unit {
@@ -964,6 +969,7 @@ code, .citation-block {
   font-weight: 400;
 }
 
+/* Subtle pulse highlight when its row is hovered */
 .duration-row:hover .duration-display-num {
   animation: number-glow 3s ease-in-out infinite;
 }
