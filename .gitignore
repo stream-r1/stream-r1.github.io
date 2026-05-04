@@ -1,0 +1,9 @@
+# Local working artifacts not deployed by the site
+posters/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
