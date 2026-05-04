@@ -880,7 +880,7 @@ code, .citation-block {
   top: 0;
   bottom: 0;
   z-index: 5;
-  width: clamp(320px, 38vw, 560px);
+  width: clamp(280px, 32vw, 460px);
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -943,8 +943,8 @@ code, .citation-block {
 }
 
 .duration-display-num {
-  font-size: clamp(120px, 18vw, 240px);
-  line-height: 0.95;
+  font-size: clamp(88px, 13vw, 170px);
+  line-height: 1;
   letter-spacing: -0.04em;
   background: linear-gradient(
     125deg,
@@ -957,8 +957,8 @@ code, .citation-block {
   color: transparent;
   font-weight: 400;
   text-shadow: 0 4px 24px rgba(196, 86, 30, 0.08);
-  padding-top: 0.04em;
-  padding-bottom: 0.02em;
+  padding-top: 0.08em;
+  padding-bottom: 0.04em;
 }
 
 .duration-display-unit {
@@ -1542,7 +1542,7 @@ footer {
 @media (max-width: 980px) {
   .pillars { grid-template-columns: 1fr; }
   .duration-display { width: clamp(220px, 36vw, 320px); }
-  .duration-display-num { font-size: clamp(110px, 20vw, 180px); }
+  .duration-display-num { font-size: clamp(80px, 14vw, 130px); }
   .duration-display-unit { font-size: clamp(16px, 2vw, 22px); }
   .duration-row .marquee-video { width: clamp(280px, 36vw, 380px); }
 }
@@ -1580,7 +1580,7 @@ footer {
   }
   .duration-display-bg { display: none; }
   .duration-display-text { padding: 0; flex-direction: row; align-items: baseline; gap: 10px; }
-  .duration-display-num { font-size: 64px; line-height: 1; }
+  .duration-display-num { font-size: 56px; line-height: 1; }
   .duration-display-unit { font-size: 18px; margin-top: 0; }
   .duration-row[data-direction="right"] .duration-display-text {
     align-items: baseline;
