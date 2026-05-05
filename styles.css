@@ -880,7 +880,7 @@ code, .citation-block {
   top: 0;
   bottom: 0;
   z-index: 5;
-  width: clamp(280px, 32vw, 460px);
+  width: clamp(320px, 36vw, 520px);
   pointer-events: none;
   display: flex;
   align-items: center;
@@ -905,9 +905,9 @@ code, .citation-block {
   background: linear-gradient(
     90deg,
     var(--bg-alt) 0%,
-    var(--bg-alt) 60%,
-    rgba(244, 243, 238, 0.85) 80%,
-    rgba(244, 243, 238, 0.4) 92%,
+    var(--bg-alt) 80%,
+    rgba(244, 243, 238, 0.92) 90%,
+    rgba(244, 243, 238, 0.5) 96%,
     transparent 100%
   );
 }
@@ -916,9 +916,9 @@ code, .citation-block {
   background: linear-gradient(
     270deg,
     var(--bg-alt) 0%,
-    var(--bg-alt) 60%,
-    rgba(244, 243, 238, 0.85) 80%,
-    rgba(244, 243, 238, 0.4) 92%,
+    var(--bg-alt) 80%,
+    rgba(244, 243, 238, 0.92) 90%,
+    rgba(244, 243, 238, 0.5) 96%,
     transparent 100%
   );
 }
@@ -1541,8 +1541,8 @@ footer {
 
 @media (max-width: 980px) {
   .pillars { grid-template-columns: 1fr; }
-  .duration-display { width: clamp(220px, 36vw, 320px); }
-  .duration-display-num { font-size: clamp(80px, 14vw, 130px); }
+  .duration-display { width: clamp(240px, 38vw, 360px); }
+  .duration-display-num { font-size: clamp(72px, 12vw, 120px); }
   .duration-display-unit { font-size: clamp(16px, 2vw, 22px); }
   .duration-row .marquee-video { width: clamp(280px, 36vw, 380px); }
 }
